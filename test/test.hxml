@@ -1,0 +1,15 @@
+-lib buddy
+-cp ../src
+--each
+
+-lib hxnodejs
+-js test.js 
+--main Main
+--cmd node test.js
+
+--next
+
+-lib hxnodejs
+-js openTypeTest.js 
+--main TestOpenTypeJs
+--cmd node openTypeTest.js
