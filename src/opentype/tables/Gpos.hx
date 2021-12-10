@@ -1,88 +1,98 @@
 package opentype.tables;
-
+import opentype.tables.Script;
+import opentype.tables.subtables.Lookup1;
+import opentype.tables.subtables.Lookup2;
+import opentype.tables.subtables.Lookup2.PairSet;
 import haxe.io.Bytes;
 
-class Gpos {
-
-    var subtableParsers : Array<Parser -> Void>;
+class Gpos 
+implements IScriptTable
+{
+    static function error(p) : Any {
+        return null;
+    }
+    static var subtableParsers : Array<Parser -> Any> = [null, parseLookup1, parseLookup2, error, error, error, error, error, error, error];
 
     public function new() {
-        subtableParsers = [null, parseLookup2];         // subtableParsers[0] is unused
+        //subtableParsers = [null, parseLookup2];         // subtableParsers[0] is unused
     }
 
-    public var version(default, null) : Int;
-    //scripts: p.parseScriptList(),
+    public var version(default, null) : Float = -1;
+    public var scripts(default, null) : Array<ScriptRecord> = [];
+    public var lookups(default, null) : Array<LookupTable> = [];
+    public var features(default, null) : Array<FeatureTable> = [];
     //features: p.parseFeatureList(),
-    //public var lookups(default, null) :     
 
-    public static function parse(data : Bytes, position : Int) : Gpos {
+    public static function parse(data : Bytes, position = 0) : Gpos {
         return parseGposTable(data, position);
-        
-        //return new Gpos();
     }
+
+    // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-1-single-adjustment-positioning-subtable
+    // this = Parser instance
+    public static function parseLookup1(p: Parser) : Any {
+        final start = p.offset + p.relativeOffset;
+        final res = new Lookup1();
+        res.posFormat = p.parseUShort();
+        Check.assert(res.posFormat == 1 || res.posFormat == 2, '${StringTools.hex(start)} : GPOS lookup type 1 format must be 1 or 2.');
+        res.coverage = p.parsePointer().parseCoverage();
+        if (res.posFormat == 1) {
+            res.value = p.parseValueRecord();
+        } else if (res.posFormat == 2) {
+            res.values = p.parseValueRecordList();
+        }
+        return res;
+    };
+
 
     // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-2-pair-adjustment-positioning-subtable
-    function parseLookup2(p : Parser) {
+    static function parseLookup2(p : Parser) : Any {
         final start = p.offset + p.relativeOffset;
-        final posFormat = p.parseUShort();
-        Check.assert(posFormat == 1 || posFormat == 2, '${StringTools.hex(start)} + : GPOS lookup type 2 format must be 1 or 2.');
-        //final coverage = p.parsePointer(p.parseCoverage);
-        //final valueFormat1 = p.parseUShort();
-        //final valueFormat2 = p.parseUShort();
-        /*
-        if (posFormat == 1) {
+        final res = new Lookup2();
+        res.posFormat = p.parseUShort();
+        Check.assert(res.posFormat == 1 || res.posFormat == 2, '${StringTools.hex(start)} + : GPOS lookup type 2 format must be 1 or 2.');
+        res.coverage = p.parsePointer().parseCoverage();
+        res.valueFormat1 = p.parseUShort();
+        res.valueFormat2 = p.parseUShort();
+        if (res.posFormat == 1) {
             // Adjustments for Glyph Pairs
-            return {
-                posFormat: posFormat,
-                coverage: coverage,
-                valueFormat1: valueFormat1,
-                valueFormat2: valueFormat2,
-                pairSets: p.parseList(Parser.pointer(Parser.list(function() {
-                    return {        // pairValueRecord
-                        secondGlyph: p.parseUShort(),
-                        value1: p.parseValueRecord(valueFormat1),
-                        value2: p.parseValueRecord(valueFormat2)
+            res.pairSets = p.parseList(() -> p.parseAtPointer(
+                p -> p.parseList(() -> new PairSet(
+                        p.parseUShort(),
+                        p.parseValueRecordOfFormat(res.valueFormat1),
+                        p.parseValueRecordOfFormat(res.valueFormat2)
+                    )
+                )
+            ));
+        } else if (res.posFormat == 2) {
+            res.classDef1 = p.parseAtPointer(Parser.classDef);
+            res.classDef2 = p.parseAtPointer(Parser.classDef);
+            res.classCount1 = p.parseUShort();
+            res.classCount2 = p.parseUShort();
+            res.classRecords = p.parseListOfLength(res.classCount1, () -> {
+                p.parseListOfLength(res.classCount2, () -> {
+                    var r : Pair<ValueRecord, ValueRecord> = {
+                        value1 : p.parseValueRecordOfFormat(res.valueFormat1),
+                        value2 : p.parseValueRecordOfFormat(res.valueFormat2)
                     };
-                })))
-            };
-        } else if (posFormat == 2) {
-            final classDef1 = this.parsePointer(Parser.classDef);
-            final classDef2 = this.parsePointer(Parser.classDef);
-            final class1Count = this.parseUShort();
-            final class2Count = this.parseUShort();
-            return {
-                // Class Pair Adjustment
-                posFormat: posFormat,
-                coverage: coverage,
-                valueFormat1: valueFormat1,
-                valueFormat2: valueFormat2,
-                classDef1: classDef1,
-                classDef2: classDef2,
-                class1Count: class1Count,
-                class2Count: class2Count,
-                classRecords: this.parseList(class1Count, Parser.list(class2Count, function() {
-                    return {
-                        value1: this.parseValueRecord(valueFormat1),
-                        value2: this.parseValueRecord(valueFormat2)
-                    };
-                }))
-            };
+                    return r;
+                });
+            });
         }
-        */
+       // Check.assert(false, '${StringTools.hex(start)} : GPOS lookup type 1 format must be 1 or 2.');
+        return res;
     }
 
 
     // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos
-    public static function parseGposTable(data : Bytes, start = 0) : Gpos {
+    static function parseGposTable(data : Bytes, start = 0) : Gpos {
         final p = new Parser(data, start);
         final tableVersion = p.parseVersion(1);
         if(tableVersion != 1 && tableVersion != 1.1) throw('Unsupported GPOS table version ' + tableVersion);
-        
         var gpos = new Gpos();
         gpos.version = tableVersion;
-        //gpos.lookups = p.parseLookupList(subtableParsers);
-        //scripts: p.parseScriptList(),
-        //features: p.parseFeatureList(),
+        gpos.scripts = p.parseScriptList();
+        gpos.features = p.parseFeatureList();
+        gpos.lookups = p.parseLookupList(subtableParsers);
         if(tableVersion != 1) {
             //gpos.variations = p.parseFeatureVariationsList()
         }

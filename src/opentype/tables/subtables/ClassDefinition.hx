@@ -1,21 +1,22 @@
 package opentype.tables.subtables;
 
 @:structInit
-class ClassDefinition {
+class ClassDefinition 
+{
     public function new(
         format : Int,
         ?startGlyphId : Int,
-        ?classValueArray : Array<Int>,
-        ?classRangeRecords : Array<ClassRangeRecord>
+        ?classes : Array<Int>,
+        ?ranges : Array<RangeRecord>
     ) {
         this.format = format;
         this.startGlyphId = startGlyphId != null ? startGlyphId : -1;
-        this.classValueArray = classValueArray != null ? classValueArray : [];
-        this.classRangeRecords = classRangeRecords != null ? classRangeRecords : [];
+        this.classes = classes != null ? classes : [];
+        this.ranges = ranges != null ? ranges : [];
     }
     
     public var format : Int;
     public var startGlyphId : Int;
-    public var classValueArray : Array<Int>;
-    public var classRangeRecords : Array<ClassRangeRecord>;
+    public var classes : Array<Int>;
+    public var ranges : Array<RangeRecord>;
 }

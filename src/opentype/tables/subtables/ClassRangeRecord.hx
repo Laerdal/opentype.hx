@@ -1,18 +1,20 @@
 package opentype.tables.subtables;
 
 @:structInit
-class ClassRangeRecord {
+class ClassRangeRecord 
+implements IRecord
+{
     public function new(
-        startGlyphId : Int,
-        endGlyphId : Int,
+        start : Int,
+        end : Int,
         classId : Int
     ) {
-        this.startGlyphId = startGlyphId;
-        this.endGlyphId = endGlyphId;
+        this.start = start;
+        this.end = end;
         this.classId = classId;
 }
     
-    public var startGlyphId : Int;
-    public var endGlyphId : Int;
+    public var start : Int;
+    public var end : Int;
     public var classId : Int;
 }

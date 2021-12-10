@@ -26,6 +26,15 @@ class BytesHelper {
 		return first * 256 + second;
 	}
 
+	public static inline function readS16BE(bytes : Bytes, position: Int): Int {
+		var ch1 = bytes.readU8(position + 0);
+		var ch2 = bytes.readU8(position + 1);
+		var n = ch2 | (ch1 << 8);
+		if (n & 0x8000 != 0)
+			return n - 0x10000;
+		return n;		
+	}
+
 	// Retrieve an unsigned 32-bit long from the DataView.
 	// The value is stored in big endian.
 	public static inline function readULong(p: Bytes, position: Int = 0): Int {
@@ -36,4 +45,11 @@ class BytesHelper {
 		return ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24);
 	}	
 
+	// Retrieve a 32-bit signed fixed-point number (16.16) from the DataView.
+	// The value is stored in big endian.
+	public static function getFixed(p : Bytes, position: Int = 0) {
+		final decimal = p.readU16BE(position);
+		final fraction = p.readU16BE(position + 2);
+		return decimal + fraction / 65535;
+	}	
 }

@@ -5,6 +5,16 @@ class Tables {
     public function new() {
         
     }
-    public var cmap : Cmap;
-    public var gpos : Gpos;
+
+    public var scriptTables : Map<String, IScriptTable> = [];
+
+    public var name : String;
+    public var head : Head;
+    public var gpos(default,set) : Gpos;
+    public var maxp : Maxp;
+
+    function set_gpos(gpos : Gpos) {
+        scriptTables["gpos"] = gpos;
+        return this.gpos = gpos;
+    }
 }

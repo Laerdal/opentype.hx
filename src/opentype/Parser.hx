@@ -1,10 +1,16 @@
 package opentype;
 
+import opentype.tables.FeatureTable; 
+import opentype.tables.FeatureTable.Feature; 
+import opentype.tables.LangSys; 
+import opentype.tables.LangSysRecord;
 import opentype.tables.LookupTable;
+import opentype.tables.ScriptRecord;
+import opentype.tables.Script; 
+import opentype.tables.ValueRecord; 
 import opentype.tables.subtables.Coverage;
 import opentype.tables.subtables.RangeRecord;
 import opentype.tables.subtables.ClassDefinition;
-import opentype.tables.subtables.ClassRangeRecord;
 import haxe.io.Bytes;
 using opentype.BytesHelper;
 
@@ -15,16 +21,20 @@ typedef Int16  = Int;
 typedef Uint32 = Int;
 typedef Int32  = Int;
 
-
 class Parser {
-    public function new(data : Bytes, offset : Int) {
+
+    public static final typeOffsetByte = 1;
+    public static final typeOffsetUShort = 2;
+    public static final typeOffsetShort = 2;
+    public static final typeOffsetULong = 4;
+    public static final typeOffsetFixed = 4;
+    public static final typeOffsetLongDateTime = 8;
+    public static final typeOffsetTag = 4;    
+
+    public function new(data : Bytes, offset = 0) {
         this.data = data;
         this.offset = offset;
         this.relativeOffset = 0;
-    }
-
-    public function parserFromOffset(offset) : Parser {
-        return new Parser(data, this.offset + offset);
     }
 
     public static function byte(p : Parser) : Int return p.parseByte();
@@ -37,42 +47,63 @@ class Parser {
 		return data.readChar(offset + relativeOffset++);
     };    
         
-    public static function uShort(p : Parser) : Int return p.parseUShort();
+    public static function uShort(p: Parser) : Int return p.parseUShort();
 	public function parseUShort(): Int {
         final v = data.readU16BE(offset + relativeOffset);
         relativeOffset += 2;
         return v; 
 	}
-/*
+
+    public static function short(p: Parser) : Int return p.parseShort();
+    public function parseShort() : Int {
+        final v = data.readS16BE(offset + relativeOffset);
+        relativeOffset += 2;
+        return v;
+    };
+
     public function parseULong() {
-        final v = getULong(this.data, this.offset + this.relativeOffset);
-        this.relativeOffset += 4;
+        final v = data.readULong(offset + relativeOffset);
+        relativeOffset += 4;
         return v;
     };    
 
     public function parseFixed() {
-        final v = getFixed(this.data, this.offset + this.relativeOffset);
-        this.relativeOffset += 4;
+        final v = data.getFixed(offset + relativeOffset);
+        relativeOffset += 4;
         return v;
     };
-*/
 
     public function parseString(length : Int) {
-        final offset = this.offset + this.relativeOffset;
+        final offset = offset + relativeOffset;
         var string = '';
         for (i in 0...length) {
             string += String.fromCharCode(data.readU8(offset + i));
         }
         relativeOffset += length;
-    
         return string;
     };    
 
+    public static function tag(p : Parser) : String {
+        return p.parseTag();
+    }
     public function parseTag() {
         return this.parseString(4);
     };
 
-    public function parseVersion(minorBase : Int) {
+    // LONGDATETIME is a 64-bit integer.
+    // JavaScript and unix timestamps traditionally use 32 bits, so we
+    // only take the last 32 bits.
+    // + Since until 2038 those bits will be filled by zeros we can ignore them.
+    public function parseLongDateTime() {
+        var v = data.readULong(offset + relativeOffset + 4);
+        // Subtract seconds between 01/01/1904 and 01/01/1970
+        // to convert Apple Mac timestamp to Standard Unix timestamp
+        v -= 2082844800;
+        relativeOffset += 8;
+        return v;
+    };
+
+    public function parseVersion(minorBase = 0x1000) : Float {
         final major = BytesHelper.readU16BE(this.data, this.offset + this.relativeOffset);
     
         // How to interpret the minor version is very vague in the spec. 0x5000 is 5, 0x1000 is 1
@@ -80,26 +111,50 @@ class Parser {
         // Set minorBase to 1 for tables that use minor = N where N is 0-9
         final minor = BytesHelper.readU16BE(this.data, this.offset + this.relativeOffset + 2);
         this.relativeOffset += 4;
-        if (minorBase == null) minorBase = 0x1000;
-        return Std.int(major + minor / minorBase / 10);
+        return major + minor / minorBase / 10;
     };    
+    
+    public function skip(offset : Int, amount = 1) : Void {
+        relativeOffset += offset * amount;
+    };
 
-    // Parse a list of 16 bit unsigned integers. The length of the list can be read on the stream
-    // or provided as an argument.
-    public function parseUShortList(?count : Int) : Array<Int> {
-        if (count == null) count = parseUShort();
+    public function skipULong(amount = 1) : Void { 
+        skip(typeOffsetULong, amount);
+    }
+    public function skipUShort(amount = 1) : Void { 
+        skip(typeOffsetUShort, amount);
+    }
+
+    // Parse a list of 16 bit unsigned integers. The length of the list is read on the stream
+    public static function uShortList(p : Parser) : Array<Int> {
+        return p.parseUShortList();
+    }
+    public function parseUShortList() : Array<Int> {
+        return parseUShortListOfLength(parseUShort());
+    }
+    public function parseUShortListOfLength(count : Int) : Array<Int> {
         return [ for(i in 0...count) parseUShort() ];
     }
+
 
     /**
     * Parse a list of items.
     * Record count is optional, if omitted it is read from the stream.
     * itemCallback is one of the Parser methods.
     */
-    public static function list<T>(parser : Parser, ?count : Int, itemCallback : Void -> T) : Array<T> { return parser.parseList(count, itemCallback); }
-    public function parseList<T>(?count : Int, itemCallback : Void -> T) : Array<T> {
-        if (count == null) count = parseUShort();
-        return [for (i in 0...count) itemCallback()];
+    /* might not be needed
+    public static function list<T>(p : Parser, parseFn : Void -> T) : Array<T> { 
+        return p.parseList(parseFn); 
+    }
+    public static function listOfLength<T>(p : Parser, count : Int, parseFn : Void -> T) : Array<T> { 
+        return p.parseListOfLength(count, parseFn); 
+    }
+    */
+    public function parseList<T>(parseFn : Void -> T) : Array<T> {
+        return parseListOfLength(parseUShort(), parseFn);
+    };
+    public function parseListOfLength<T>(count : Int, parseFn : Void -> T) : Array<T> {
+        return [for (i in 0...count) parseFn()];
     };
 
     /**
@@ -107,18 +162,20 @@ class Parser {
     * Record count is optional, if omitted it is read from the stream.
     * Example of recordDescription: { sequenceIndex: Parser.uShort, lookupListIndex: Parser.uShort }
     */
-    public function parseRecordList(?count : Int, recordDescription : Array<RecordDescription>) : Array<Array<Pair<String, Int>>> 
+    public static function recordListOfLength<T>(p : Parser, count : Int, recordDescription : Array<RecordDescription<T>>) : Array<Array<Record<T>>> {
+        return p.parseRecordListOfLength(count, recordDescription);
+    } 
+    public function parseRecordListOfLength<T>(count : Int, recordDescription : Array<RecordDescription<T>>) : Array<Array<Record<T>>> 
     {
         // If the count argument is absent, read it in the stream.
-        if (count == null) count = parseUShort();
-        final records = new Array<Array<Pair<String, Int>>>();
+        final records = new Array<Array<Record<T>>>();
         records.resize(count);
         for (i in 0...count) {
             var pairs = [];
             for(f in recordDescription) {
-                final rec : Pair<String, Int> = { 
+                final rec : Record<T> = { 
                     name : f.name,
-                    value : f.parseFn()
+                    value : f.parseFn(this)
                 };
                 pairs.push(rec);
             }
@@ -127,62 +184,75 @@ class Parser {
         return records;
     }
 
+    public static function recordList<T>(recordDescription : Array<RecordDescription<T>>) : Parser -> Array<Array<Record<T>>> {
+        return p -> p.parseRecordList(recordDescription);
+    }
+    public function parseRecordList<T>(recordDescription : Array<RecordDescription<T>>) : Array<Array<Record<T>>> {
+        return parseRecordListOfLength(parseUShort(), recordDescription);
+    }
+
     /**
     * Parse a list of records.
     * Record count is optional, if omitted it is read from the stream.
     */
-    public function parseRecordListOfSameType(?count : Int, names : Array<String>, valueParser : Void -> Int ) : Array<Array<Pair<String, Int>>> 
+    public function parseRecordListOfSameType<T>(names : Array<String>, valueParser : Parser -> T ) : Array<Array<Record<T>>> 
     {
-        return parseRecordList(count, [for(name in names) { name : name, parseFn : valueParser } ]);
+        return parseRecordList([for(name in names) { name : name, parseFn : valueParser } ]);
     }
 
-    // Parse a data structure into an object
-    // Example of description: { sequenceIndex: Parser.uShort, lookupListIndex: Parser.uShort }
-/*
-    public function parseStruct(description) {
-        if (typeof description === 'function') {
-            return description.call(this);
-        } else {
-            final fields = Object.keys(description);
-            final struct = {};
-            for (let j = 0; j < fields.length; j++) {
-                final fieldName = fields[j];
-                final fieldType = description[fieldName];
-                struct[fieldName] = fieldType.call(this);
-            }
-            return struct;
-        }
-    };
-*/
-/*
-    public function parsePointer<T>(parseFn : Parser -> T) {
-        final structOffset = parseUShort();
-        if (structOffset > 0) {
-            return parseFn(new Parser(data, offset + structOffset));
-        }
-        return null;
-    };
+
+
+
+    /**
+    * Parse a GPOS valueRecord
+    * https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#value-record
+    * valueFormat is optional, if omitted it is read from the stream.
     */
+    public function parseValueRecord() : ValueRecord {
+        return parseValueRecordOfFormat(parseUShort());
+    }
+
+    public function parseValueRecordOfFormat(valueFormat : Int) : ValueRecord {
+        if (valueFormat == 0) {
+            // valueFormat2 in kerning pairs is most often 0
+            // in this case return undefined instead of an empty object, to save space
+            return null;
+        }
+        final valueRecord = new ValueRecord();
+        if (valueFormat & 0x0001 != 0) { valueRecord.xPlacement = parseShort(); }
+        if (valueFormat & 0x0002 != 0) { valueRecord.yPlacement = parseShort(); }
+        if (valueFormat & 0x0004 != 0) { valueRecord.xAdvance = parseShort(); }
+        if (valueFormat & 0x0008 != 0) { valueRecord.yAdvance = parseShort(); }
+        // Device table (non-variable font) / VariationIndex table (variable font) not supported
+        // https://docs.microsoft.com/fr-fr/typography/opentype/spec/chapter2#devVarIdxTbls
+        if (valueFormat & 0x0010 != 0) { /* valueRecord.xPlaDevice = ?*/ parseShort(); }
+        if (valueFormat & 0x0020 != 0) { /* valueRecord.yPlaDevice = ?*/ parseShort(); }
+        if (valueFormat & 0x0040 != 0) { /* valueRecord.xAdvDevice = ?*/ parseShort(); }
+        if (valueFormat & 0x0080 != 0) { /* valueRecord.yAdvDevice = ?*/ parseShort(); }
+        
+        return valueRecord;
+    }
+
+    /**
+    * Parse a list of GPOS valueRecords
+    * https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#value-record
+    * valueFormat and valueCount are read from the stream.
+    */
+    public function parseValueRecordList() : Array<ValueRecord>{
+        final valueFormat = parseUShort();
+        final valueCount = parseUShort();
+        return [for(i in 0...valueCount) parseValueRecordOfFormat(valueFormat)];
+    };    
+
+
 
     public function parsePointer() : Parser {
-        final structOffset = parseUShort();
-        if (structOffset > 0) {
-            return new Parser(data, offset + structOffset);
+        final pointerOffset = parseUShort();
+        if (pointerOffset > 0) {
+            return new Parser(data, offset + pointerOffset);
         }
         return null;
     };
-
-
-    /*
-    public function parsePointer32(description) {
-        final structOffset = parseOffset32();
-        if (structOffset > 0) {
-            // NULL offset => return undefined
-            return new Parser(data, offset + structOffset).parseStruct(description);
-        }
-        return undefined;
-    };
-    */
 
     /**
     * Parse a list of offsets to lists of 16-bit integers,
@@ -251,13 +321,13 @@ class Parser {
         if (format == 1) {
             return {
                 format: 1,
-                glyphs: parseUShortList(count),
+                glyphs: parseUShortListOfLength(count),
                 ranges: []
             };
         } else if (format == 2) {
             return {
                 format: 2,
-                ranges: [ for (i in 0...count) { startGlyphId: parseUShort(), endGlyphId: parseUShort(), startCoverageIndex: parseUShort() } ],
+                ranges: [ for (i in 0...count) { start: parseUShort(), end: parseUShort(), value: parseUShort() } ],
                 glyphs: []
             };
         }
@@ -267,6 +337,7 @@ class Parser {
 
     // Parse a Class Definition Table in a GSUB, GPOS or GDEF table.
     // https://www.microsoft.com/typography/OTSPEC/chapter2.htm
+    public static function classDef(p : Parser) : ClassDefinition { return p.parseClassDef(); }
     public function parseClassDef() : ClassDefinition {
         final startOffset = this.offset + this.relativeOffset;
         final format = parseUShort();
@@ -274,72 +345,93 @@ class Parser {
             return {
                 format: 1,
                 startGlyphId : parseUShort(),
-                classValueArray: parseUShortList()
+                classes: parseUShortList()
             };
         } else if (format == 2) {
-            var recordList = parseRecordListOfSameType(["start", "end", "classId"], parseUShort);
+            var recordList = parseRecordListOfSameType(["start", "end", "classId"], uShort);
             return {
                 format: 2,
-                classRangeRecords: [ for(r in recordList) { startGlyphId : r[0].value, endGlyphId: r[1].value, classId: r[2].value} ]
+                ranges: [ for(r in recordList) { start : r[0].value, end: r[1].value, value: r[2].value} ]
             };
         }
         throw('${StringTools.hex(startOffset)}: ClassDef format must be 1 or 2.');
     };
-/* probably not needed
-    public function parseScriptList() {
-        final langSysTable = [
-            { name : "reserved", parseFn : parseUShort },
-            { name : "reqFeatureIndex", parseFn : parseUShort },
-            { name : "featureIndexes", parseFn : parseUShortList }
-        ];
-        
-        var res = parsePointer(parseRecordList(
-            [
-                { name : "tag", parseFn : parseTag },
-                
-                { name : "script", parseFn : parsePointer([
-                        { name : "defaultLangSys", parseFn : parsePointer(langSysTable) },
-                        { name : "langSysRecords", parseFn : parseRecordList([ { name : "tag", parseFn : parseTag }, { name : "langSys", parseFn : parsePointer(langSysTable) }]) }
-                ]}
-            ]
-        ));
 
-            var res = parsePointer(parseRecordList({
-            tag: parseTag,
-            script: parsePointer({
-                defaultLangSys: parsePointer(langSysTable),
-                langSysRecords: parseRecordList({
-                    tag: parseTag,
-                    langSys: parsePointer(langSysTable)
-                })
-            })
-        }));
-        return res != null ? res : [];
-    };  
-*/
+    public function parseScriptList() : Array<ScriptRecord> {
+        var p = parsePointer();
+        return if(p != null) {
+            p.parseElements(p -> new ScriptRecord(
+                p.parseTag(),
+                p.parseAtPointer(p -> new Script(
+                    p.parseAtPointer(p -> new LangSys(
+                        p.parseUShort(),
+                        p.parseUShort(),
+                        p.parseUShortList()
+                    )),
+                    p.parseElements(p -> new LangSysRecord(
+                        p.parseTag(), 
+                        p.parseAtPointer(p -> new LangSys(
+                            p.parseUShort(),
+                            p.parseUShort(),
+                            p.parseUShortList()
+                        ))
+                    ))
+                ))
+            ));
+        } else [];
+    }
+
+    function parseElements<T>(parseFn : Parser -> T) : Array<T> {
+        return parseNElements(parseUShort(), parseFn);
+    }
+    
+    function parseNElements<T>(count : Int, parseFn : Parser -> T) : Array<T> {
+        return [for(c in 0...count) parseFn(this) ];
+    }
+
+    //Features
+    public function parseFeatureList() : Array<FeatureTable> {
+        var p = parsePointer();
+        return p != null ? p.parseElements(featureTable) : [];
+    }
+
+    function featureTable(p : Parser) : FeatureTable {
+        return new FeatureTable(
+            p.parseTag(),
+            p.parseAtPointer(feature)
+        );
+    }
+
+    function feature(p : Parser) : Feature {
+        return new Feature(
+            p.parseUShort(),
+            p.parseUShortList()
+        );
+    }
+
+    public function parseAtPointer<T>(parseFn : Parser -> T) : T {
+        var p = parsePointer();
+        return (p != null) ? parseFn(p) : null;
+    };
+
     public function parseLookupList<T>(lookupTableParsers : Array<Parser -> Any>) : Array<LookupTable> {
         var p = parsePointer();
-        var offSets = p.parseList(p.parseUShort);
-        var res : Array<LookupTable> = [];
-        for(o in offSets) {
-            var po = p.parserFromOffset(o);
-            final lookupType = p.parseUShort();
-            Check.assert(1 <= lookupType && lookupType <= 9, 'GPOS/GSUB lookup type ' + lookupType + ' unknown.');
-            final lookupFlag = p.parseUShort();
-            var subTablesOffSets = p.parseList(p.parseUShort);
-            var subTables = [];
-            for(st in subTablesOffSets) {
-                var subtableParser = po.parserFromOffset(st);
-                subTables.push(lookupTableParsers[lookupType](subtableParser));
+        if(p == null) return [];
 
-            }
-            res.push({
-                lookupType: lookupType,
-                lookupFlag: lookupFlag,
-                subTables: subTables
+        return p.parseList(() -> {
+            p.parseAtPointer((p) -> {
+                final lookupType = p.parseUShort();
+                Check.assert(1 <= lookupType && lookupType <= 9, 'GPOS/GSUB lookup type ' + lookupType + ' unknown.');
+                final lookupFlag = p.parseUShort();
+                final useMarkFilteringSet = lookupFlag & 0x10;
+                return new LookupTable(
+                    lookupType, 
+                    lookupFlag, 
+                    p.parseList(() -> p.parseAtPointer(lookupTableParsers[lookupType] )),
+                    useMarkFilteringSet > 0 ? p.parseUShort() : useMarkFilteringSet
+                );
             });
-        }
-        return res != null ? res : [];
+        });
     };
 
     // Retrieve a 4-character tag from the Bytes data.
@@ -358,29 +450,29 @@ class Parser {
 }
 
 @:structInit
-class Pair<T,S> { 
+class Record<T> { 
     public function new(
-        name : T,
-        value : S
+        name : String,
+        value : T
     ) {
         this.name = name;
         this.value = value;
     }
     
-    public var name : T;
-    public var value : S; 
+    public var name : String;
+    public var value : T; 
 }
 
 @:structInit
-class RecordDescription { 
+class RecordDescription<T> { 
     public function new(
         name : String,
-        parseFn : Void -> Int
+        parseFn : Parser -> T
     ) {
         this.name = name;
         this.parseFn = parseFn;
     }
     
     public var name : String;
-    public var parseFn : Void -> Int; 
+    public var parseFn : Parser -> T; 
 }
