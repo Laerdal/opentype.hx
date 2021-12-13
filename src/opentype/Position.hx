@@ -1,6 +1,7 @@
 package opentype;
 
 import opentype.tables.LookupTable;
+import opentype.tables.subtables.Lookup;
 
 // The Position object provides utility methods to manipulate
 // the GPOS position table.
@@ -40,8 +41,8 @@ class Position extends Layout {
         for (i in 0...kerningLookups.length) {
             final subtables = kerningLookups[i].subTables;
             for (j in 0...subtables.length) {
-                final subtable = subtables[j];
-                final covIndex = this.getCoverageIndex(subtable.coverage, leftIndex);
+                final subtable : Lookup = subtables[j];
+                final covIndex = getCoverageIndex(subtable.coverage, leftIndex);
                 if (covIndex < 0) continue;
                 switch (subtable.posFormat) {
                     case 1:
@@ -50,7 +51,7 @@ class Position extends Layout {
                         for (k in 0...pairSet.length) {
                             var pair = pairSet[k];
                             if (pair.secondGlyph == rightIndex) {
-                                return pair.value1 && pair.value1.xAdvance || 0;
+                                return pair.value1 != null ? pair.value1.xAdvance : 0;
                             }
                         }
                         break;      // left glyph found, not right glyph - try next subtable
@@ -59,7 +60,7 @@ class Position extends Layout {
                         final class1 = this.getGlyphClass(subtable.classDef1, leftIndex);
                         final class2 = this.getGlyphClass(subtable.classDef2, rightIndex);
                         final pair = subtable.classRecords[class1][class2];
-                        return pair.value1 && pair.value1.xAdvance || 0;
+                        return pair.value1 != null ? pair.value1.xAdvance : 0;
                 }
             }
         }

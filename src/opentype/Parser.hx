@@ -11,6 +11,7 @@ import opentype.tables.ValueRecord;
 import opentype.tables.subtables.Coverage;
 import opentype.tables.subtables.RangeRecord;
 import opentype.tables.subtables.ClassDefinition;
+import opentype.tables.subtables.Lookup;
 import haxe.io.Bytes;
 using opentype.BytesHelper;
 
@@ -344,7 +345,7 @@ class Parser {
         if (format == 1) {
             return {
                 format: 1,
-                startGlyphId : parseUShort(),
+                startGlyph : parseUShort(),
                 classes: parseUShortList()
             };
         } else if (format == 2) {

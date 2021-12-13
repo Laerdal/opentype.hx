@@ -2,8 +2,7 @@ package tables;
 
 using buddy.Should;
 import opentype.tables.Gpos; 
-import opentype.tables.subtables.Lookup1; 
-import opentype.tables.subtables.Lookup2; 
+import opentype.tables.subtables.Lookup; 
 using TestUtil;
 
 class GposTable extends buddy.BuddySuite {
@@ -40,13 +39,15 @@ class GposTable extends buddy.BuddySuite {
                 gpos.version.should.be(1);
                 gpos.scripts.should.containExactly([]);
                 gpos.lookups.should.containExactly([]);
+                gpos.features.should.containExactly([]);
+                gpos.lookups.should.containExactly([]);
             });
         
             //// Lookup type 1 ////////////////////////////////////////////////////////
             it('can parse lookup1 SinglePosFormat1', function() {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#example-2-singleposformat1-subtable
                 final data = '0001 0008 0002   FFB0 0002 0001   01B3 01BC 0000';
-                var gpos : Lookup1 = parseLookup(1, data);
+                var gpos : Lookup = parseLookup(1, data);
                 gpos.posFormat.should.be(1);
                 gpos.coverage.format.should.be(2);
                 gpos.coverage.ranges[0].start.should.be(0x1b3);
@@ -58,7 +59,7 @@ class GposTable extends buddy.BuddySuite {
             it('can parse lookup1 SinglePosFormat1 with ValueFormat Table and ValueRecord', function() {
                 // https://docs.microsoft.com/fr-fr/typography/opentype/spec/gpos#example-14-valueformat-table-and-valuerecord
                 final data = '0001 000E 0099   0050 00D2 0018 0020   0002 0001 00C8 00D1 0000   000B 000F 0001 5540   000B 000F 0001 5540';
-                var gpos : Lookup1 = parseLookup(1, data);
+                var gpos : Lookup = parseLookup(1, data);
                 gpos.posFormat.should.be(1);
                 gpos.coverage.format.should.be(2);
                 gpos.coverage.ranges[0].start.should.be(0xc8);
@@ -73,7 +74,7 @@ class GposTable extends buddy.BuddySuite {
             it('can parse lookup1 SinglePosFormat2', function() {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#example-3-singleposformat2-subtable
                 final data = '0002 0014 0005 0003   0032 0032   0019 0019  000A 000A   0001 0003 004F 0125 0129';
-                var gpos : Lookup1 = parseLookup(1, data);
+                var gpos : Lookup = parseLookup(1, data);
                 gpos.posFormat.should.be(2);
                 gpos.coverage.format.should.be(1);
                 gpos.coverage.glyphs.should.containExactly([0x4f, 0x125, 0x129]);
@@ -90,7 +91,7 @@ class GposTable extends buddy.BuddySuite {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#example-4-pairposformat1-subtable
                 final data = '0001 001E 0004 0001 0002 000E 0016   0001 0059 FFE2 FFEC 0001 0059 FFD8 FFE7   0001 0002 002D 0031';
                 
-                var lu2 : Lookup2 = parseLookup(2, data);
+                var lu2 : Lookup = parseLookup(2, data);
                 lu2.posFormat.should.be(1);
                 lu2.coverage.format.should.be(1);
                 lu2.coverage.glyphs.should.containExactly([0x2d, 0x31]);
@@ -107,7 +108,7 @@ class GposTable extends buddy.BuddySuite {
             it('can parse lookup2 PairPosFormat2', function() {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#example-5-pairposformat2-subtable
                 final data = '0002 0018 0004 0000 0022 0032 0002 0002 0000 0000 0000 FFCE   0001 0003 0046 0047 0049   0002 0002 0046 0047 0001 0049 0049 0001   0002 0001 006A 006B 0001';
-                var lu2 : Lookup2 = parseLookup(2, data);
+                var lu2 : Lookup = parseLookup(2, data);
                 lu2.posFormat.should.be(2);
                 lu2.coverage.format.should.be(1);
                 lu2.coverage.glyphs.should.containExactly([0x46, 0x47, 0x49]);

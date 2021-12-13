@@ -3,7 +3,9 @@ package opentype;
 
 
 class GlyphSet {
-    public function new(font : Font) {
+    
+    
+    public function new(font : Font, ?glyphs : Array<Glyph>) {
         
     }
 
@@ -17,6 +19,6 @@ class GlyphSet {
     };
     
     public function get(index : Int) : Glyph {
-        return new Glyph();
+        return new Glyph(null);
     }
 }

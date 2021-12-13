@@ -4,8 +4,8 @@ package opentype.tables.subtables;
 class Coverage {
     public function new(
         format : Int,
-        ranges : Array<RangeRecord>,
-        glyphs : Array<Int>
+        ?ranges : Array<RangeRecord>,
+        ?glyphs : Array<Int>
     
     ) {
         this.format = format;

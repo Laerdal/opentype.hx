@@ -3,7 +3,9 @@ package opentype;
 import opentype.tables.Script;
 import opentype.tables.ScriptRecord;
 import opentype.tables.LookupTable;
+import opentype.tables.ILayoutTable;
 import opentype.tables.subtables.RangeRecord;
+import opentype.tables.subtables.ClassDefinition;
 
 // The Layout object is the prototype of Substitution objects, and provides
 // utility methods to manipulate common layout tables (GPOS, GSUB, GDEF...)
@@ -108,14 +110,18 @@ class Layout {
      * @return {Object} The GSUB or GPOS table.
      */
     public function getTable(create = false) {
-        var layout = this.font.tables.scriptTables[this.tableName];
-        if (layout != null && create) {
+        return if(font.tables.layoutTables.exists(tableName)){
+            font.tables.layoutTables[tableName];
+        } else if(create) {
             // creating of default table not support
-            //layout = this.font.tables.scriptTables[this.tableName] = this.createDefaultTable();
+            return font.tables.layoutTables[tableName] = createDefaultTable();
+        } else {
+            null;
         }
-        return layout;
     }
 
+    public var createDefaultTable : Void -> ILayoutTable;
+    
     /**
      * Returns all scripts in the substitution table.
      * @instance
@@ -123,7 +129,7 @@ class Layout {
      */
     public function getScriptNames() {
         var layout = this.getTable();
-        if (!layout) { return []; }
+        if (layout != null) { return []; }
         return layout.scripts.map(function(script) {
             return script.tag;
         });
@@ -154,7 +160,7 @@ class Layout {
      * @param {boolean} create - forces the creation of this script table if it doesn't exist.
      * @return {Object} An object with tag and script properties.
      */
-    public function getScriptTable(script, create) : Script {
+    public function getScriptTable(script : String, create = false) : Script {
         final layout = this.getTable(create);
         if (layout != null) {
             script = script != null ? script : 'DFLT';
@@ -170,8 +176,10 @@ class Layout {
                         langSysRecords: []
                     }
                 };
-                throw("Fix line below");
-                //scripts.splice(-1 - pos, 0, scr);
+                var _pos = -1 - pos;
+                var a = scripts.slice(0, _pos);
+                a.push(scr);
+                layout.scripts = a.concat(scripts.slice(_pos));
                 return scr.script;
             }
         }
@@ -298,7 +306,7 @@ class Layout {
      * @param {number} glyphIndex - the index of the glyph to find
      * @returns {number} -1 if not found
      */
-    public function getGlyphClass(classDefTable, glyphIndex) {
+    public function getGlyphClass(classDefTable : ClassDefinition, glyphIndex : Int) {
         switch (classDefTable.format) {
             case 1:
                 if (classDefTable.startGlyph <= glyphIndex && glyphIndex < classDefTable.startGlyph + classDefTable.classes.length) {
@@ -307,8 +315,9 @@ class Layout {
                 return 0;
             case 2:
                 final range = searchRange(classDefTable.ranges, glyphIndex);
-                return range ? range.classId : 0;
+                return range != null ? range.value : 0;
         }
+        return -1;
     }
 
     /**

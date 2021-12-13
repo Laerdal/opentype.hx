@@ -28,7 +28,7 @@ class TestOpenType extends buddy.BuddySuite {
             describe('parse', {
                 var fontBytes : Bytes;
                 beforeAll(function(done) {
-                    OpenType.loadFromFile("fonts/lato.ttf", (b) -> {
+                    OpenType.loadFromFile("fonts/arial.ttf", (b) -> {
                         fontBytes = b;
                         done();
                     }, (e) -> {});

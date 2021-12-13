@@ -1,24 +1,24 @@
 package opentype.tables;
 import opentype.tables.Script;
-import opentype.tables.subtables.Lookup1;
-import opentype.tables.subtables.Lookup2;
-import opentype.tables.subtables.Lookup2.PairSet;
+import opentype.tables.subtables.Lookup;
+import opentype.tables.subtables.Lookup.PairSet;
 import haxe.io.Bytes;
 
 class Gpos 
 implements IScriptTable
+implements ILayoutTable
 {
     static function error(p) : Any {
         return null;
     }
-    static var subtableParsers : Array<Parser -> Any> = [null, parseLookup1, parseLookup2, error, error, error, error, error, error, error];
+    static var subtableParsers : Array<Parser -> Any> = [null, cast parseLookup1, cast parseLookup2, error, error, error, error, error, error, error];
 
     public function new() {
         //subtableParsers = [null, parseLookup2];         // subtableParsers[0] is unused
     }
 
     public var version(default, null) : Float = -1;
-    public var scripts(default, null) : Array<ScriptRecord> = [];
+    public var scripts : Array<ScriptRecord> = [];
     public var lookups(default, null) : Array<LookupTable> = [];
     public var features(default, null) : Array<FeatureTable> = [];
     //features: p.parseFeatureList(),
@@ -29,9 +29,9 @@ implements IScriptTable
 
     // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-1-single-adjustment-positioning-subtable
     // this = Parser instance
-    public static function parseLookup1(p: Parser) : Any {
+    public static function parseLookup1(p: Parser) : Lookup {
         final start = p.offset + p.relativeOffset;
-        final res = new Lookup1();
+        final res = new Lookup();
         res.posFormat = p.parseUShort();
         Check.assert(res.posFormat == 1 || res.posFormat == 2, '${StringTools.hex(start)} : GPOS lookup type 1 format must be 1 or 2.');
         res.coverage = p.parsePointer().parseCoverage();
@@ -45,9 +45,9 @@ implements IScriptTable
 
 
     // https://docs.microsoft.com/en-us/typography/opentype/spec/gpos#lookup-type-2-pair-adjustment-positioning-subtable
-    static function parseLookup2(p : Parser) : Any {
+    static function parseLookup2(p : Parser) : Lookup {
         final start = p.offset + p.relativeOffset;
-        final res = new Lookup2();
+        final res = new Lookup();
         res.posFormat = p.parseUShort();
         Check.assert(res.posFormat == 1 || res.posFormat == 2, '${StringTools.hex(start)} + : GPOS lookup type 2 format must be 1 or 2.');
         res.coverage = p.parsePointer().parseCoverage();

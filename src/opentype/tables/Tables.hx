@@ -1,12 +1,14 @@
 package opentype.tables;
 
+import opentype.tables.ILayoutTable;
+
 
 class Tables {
     public function new() {
         
     }
 
-    public var scriptTables : Map<String, IScriptTable> = [];
+    public var layoutTables : Map<String, ILayoutTable> = [];
 
     public var name : String;
     public var head : Head;
@@ -14,7 +16,7 @@ class Tables {
     public var maxp : Maxp;
 
     function set_gpos(gpos : Gpos) {
-        scriptTables["gpos"] = gpos;
+        layoutTables["gpos"] = gpos;
         return this.gpos = gpos;
     }
 }
