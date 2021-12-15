@@ -1,7 +1,9 @@
 package opentype.tables;
 
 @:structInit
-class LangSysRecord {
+class LangSysRecord 
+implements ITag
+{
     public function new(tag, langSys) {
         this.tag = tag;
         this.langSys = langSys;

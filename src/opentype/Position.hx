@@ -20,15 +20,20 @@ class Position extends Layout {
         //Layout.call(this, font, 'gpos');        
     }
 
-    //Position.prototype = Layout.prototype;
-
+    public function hasKerningTables() : Bool {
+        return defaultKerningTables != null;
+    }
     /**
     * Init some data for faster and easier access later.
     */
     public function init() {
         final script = getDefaultScriptName();
-        this.defaultKerningTables = getKerningTables(script, null);
+        defaultKerningTables = getKerningTables(script, null);
     };
+
+    public function getKerningValue(leftIndex : Int, rightIndex : Int) : Int {
+        return getKerningValueForLookups(defaultKerningTables, leftIndex, rightIndex);
+    }
 
     /**
     * Find a glyph pair in a list of lookup tables of type 2 and retrieve the xAdvance kerning value.
@@ -37,7 +42,7 @@ class Position extends Layout {
     * @param {integer} rightIndex - right glyph index
     * @returns {integer}
     */
-    public function getKerningValue (kerningLookups : Array<LookupTable>, leftIndex : Int, rightIndex : Int) : Int {
+    public function getKerningValueForLookups (kerningLookups : Array<LookupTable>, leftIndex : Int, rightIndex : Int) : Int {
         for (i in 0...kerningLookups.length) {
             final subtables = kerningLookups[i].subTables;
             for (j in 0...subtables.length) {

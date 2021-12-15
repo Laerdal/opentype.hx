@@ -13,21 +13,20 @@ class GlyphTable {
             throw("Low memory mode not implemented");
             null;
         } else {
-            //parseGlyfTableAll(data, start, loca, font);
-            null;
+            parseGlyfTableAll(data, position, glyphOffsets, font);
         }
     }
 
-    static function parseGlyfTableAll(data : Int, start : Int, glyphOffsets : Array<Int>, font : Font) {
+    static function parseGlyfTableAll(data : Bytes, start : Int, glyphOffsets : Array<Int>, font : Font) {
         final glyphs = new GlyphSet(font);
         // The last element of the loca table is invalid.
         for (i in 0...glyphOffsets.length - 1) {
             final offset = glyphOffsets[i];
             final nextOffset = glyphOffsets[i + 1];
             if (offset != nextOffset) {
-                //glyphs.push(i, glyphset.ttfGlyphLoader(font, i, parseGlyph, data, start + offset, buildPath));
+                glyphs.addGlyphLoader(i, GlyphSet.ttfGlyphLoader(font, i, /*parseGlyph, */data, start + offset/*, buildPath */));
             } else {
-                //glyphs.push(i, glyphset.glyphLoader(font, i));
+                glyphs.addGlyphLoader(i, GlyphSet.glyphLoader(font, i));
             }
         }
         return glyphs;

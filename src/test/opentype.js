@@ -2,6 +2,8 @@
  * https://opentype.js.org v1.3.4 | (c) Frederik De Bleser and other contributors | MIT License | Uses tiny-inflate by Devon Govett and string.prototype.codepointat polyfill by Mathias Bynens
  */
 
+const { trace } = require('console');
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -2441,12 +2443,11 @@
 
 	// Parse a data structure into an object
 	// Example of description: { sequenceIndex: Parser.uShort, lookupListIndex: Parser.uShort }
-	Parser.prototype.parseStruct = function(description) {f
+	Parser.prototype.parseStruct = function(description) {
 	    if (typeof description === 'function') {
 			//console.log(description);
 	        return description.call(this);
 	    } else {
-			console.log("Not founssss");
 	        var fields = Object.keys(description);
 	        var struct = {};
 	        for (var j = 0; j < fields.length; j++) {
@@ -3391,13 +3392,12 @@
 	 * @param  {GlyphOptions}
 	 */
 	Glyph.prototype.bindConstructorValues = function(options) {
-	    this.index = options.index || 0;
+		this.index = options.index || 0;
 
 	    // These three values cannot be deferred for memory optimization:
 	    this.name = options.name || null;
 	    this.unicode = options.unicode || undefined;
 	    this.unicodes = options.unicodes || options.unicode !== undefined ? [options.unicode] : [];
-
 	    // But by binding these values only when necessary, we reduce can
 	    // the memory requirements by almost 3% for larger fonts.
 	    if ('xMin' in options) {
@@ -13925,13 +13925,15 @@
 	    var p = new Parser(data, start);
 	    var tableVersion = p.parseVersion(1);
 	    check.argument(tableVersion === 1 || tableVersion === 1.1, 'Unsupported GPOS table version ' + tableVersion);
-
 	    if (tableVersion === 1) {
+			var scripts = p.parseScriptList();
+			var features = p.parseFeatureList();
+			var pll = p.parseLookupList(subtableParsers$1);
 	        return {
 	            version: tableVersion,
-	            scripts: p.parseScriptList(),
-	            features: p.parseFeatureList(),
-	            lookups: p.parseLookupList(subtableParsers$1)
+	            scripts: scripts,
+	            features: features,
+	            lookups: pll
 	        };
 	    } else {
 	        return {

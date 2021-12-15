@@ -1,5 +1,5 @@
 -lib buddy
--cp ../src
+-cp ..
 --each
 
 -lib hxnodejs
@@ -8,8 +8,14 @@
 --cmd node test.js
 
 --next
-
 -lib hxnodejs
 -js openTypeTest.js 
 --main TestOpenTypeJs
---cmd node openTypeTest.js
+--cmd node openTypeTest.js 
+
+#--next 
+#
+#--cs out/cs 
+#--main MainCs
+#--cmd cd out/cs/bin 
+#--cmd MainCs.exe 

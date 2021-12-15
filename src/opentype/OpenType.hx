@@ -4,6 +4,7 @@ import sys.io.File;
 import sys.FileSystem;
 import haxe.io.Bytes;
 import opentype.tables.GlyphTable;
+import opentype.tables.Cmap;
 import opentype.tables.Gpos;
 import opentype.tables.Head;
 import opentype.tables.Kern;
@@ -196,7 +197,7 @@ class OpenType {
 	    var fvarTableEntry;
 	    var glyfTableEntry : TableEntry = null;
 	    var gdefTableEntry;
-	    var gposTableEntry;
+	    var gposTableEntry : TableEntry = null;
 	    var gsubTableEntry;
 	    var hmtxTableEntry : TableEntry = null;
 	    var kernTableEntry : TableEntry = null;
@@ -209,12 +210,11 @@ class OpenType {
 	        var tableEntry = tableEntries[i];
 	        var table : Table;
 	        switch (tableEntry.tag) {
-/*                    
 	            case 'cmap':
 	                table = uncompressTable(data, tableEntry);
-	                font.tables.cmap = cmap.parse(table.data, table.offset);
-	                font.encoding = new CmapEncoding(font.tables.cmap);
-	                break;
+	                font.tables.cmap = Cmap.parse(table.data, table.offset);
+	                font.encoding = new opentype.Encoding.CmapEncoding(font.tables.cmap);
+/*                    
 	            case 'cvt ' :
 	                table = uncompressTable(data, tableEntry);
 	                p = new parse.Parser(table.data, table.offset);
@@ -250,8 +250,8 @@ class OpenType {
 	                table = uncompressTable(data, tableEntry);
 	                ltagTable = ltag.parse(table.data, table.offset);
 	                break;
-	            case 'maxp':
                 */
+	            case 'maxp':
 	                table = uncompressTable(data, tableEntry);
 	                font.tables.maxp = Maxp.parse(table.data, table.offset);
 	                font.numGlyphs = font.tables.maxp.numGlyphs;
@@ -290,9 +290,7 @@ class OpenType {
 	                break;
 */                    
 	            case 'GPOS': {
-                    final gposTable = uncompressTable(data, tableEntry);
-                    font.tables.gpos = Gpos.parse(gposTable.data, gposTable.offset);
-                    //font.position.init();
+                    gposTableEntry = tableEntry;
                 }
 /*
                 case 'GSUB':
@@ -314,7 +312,7 @@ class OpenType {
             final loca = Loca.parse(locaTable.data, locaTable.offset, font.numGlyphs, shortVersion);
             final glyfTable = uncompressTable(data, glyfTableEntry);
             //font.glyphs = glyf.parse(glyfTable.data, glyfTable.offset, loca.glyphOffsets, font, opt);
-            var glyph = GlyphTable.parse(glyfTable.data, glyfTable.offset, loca.glyphOffsets, font, false);
+            font.glyphs = GlyphTable.parse(glyfTable.data, glyfTable.offset, loca.glyphOffsets, font, false);
         } /* else if (cffTableEntry) {
             const cffTable = uncompressTable(data, cffTableEntry);
             cff.parse(cffTable.data, cffTable.offset, font, opt);
@@ -324,7 +322,7 @@ class OpenType {
     */
         final hmtxTable = uncompressTable(data, hmtxTableEntry);
         Hmtx.parse(hmtxTable.data, hmtxTable.offset, font);
-        //addGlyphNames(font, opt);
+        Encoding.addGlyphNames(font, false);
 
         if (kernTableEntry != null) {
             final kernTable = uncompressTable(data, kernTableEntry);
@@ -332,6 +330,13 @@ class OpenType {
         } else {
             font.kerningPairs = null;
         }
+
+        if(gposTableEntry != null) {
+            final gposTable = uncompressTable(data, gposTableEntry);
+            font.tables.gpos = Gpos.parse(gposTable.data, gposTable.offset);
+            font.position.init();
+        }
+
 
         return font;
     }

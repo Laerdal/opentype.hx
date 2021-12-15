@@ -2,7 +2,8 @@ package opentype.tables;
 
 import haxe.io.Bytes;
 
-class Head {
+class Head 
+{
     public var version(default, null) : Float;
     public var fontRevision(default, null) : Float;
     public var checkSumAdjustment(default, null) : Int;

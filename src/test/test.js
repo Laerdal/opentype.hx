@@ -266,7 +266,7 @@ Main.__name__ = "Main";
 Main.__interfaces__ = [buddy_Buddy];
 Main.main = function() {
 	var testsDone = false;
-	var runner = new buddy_SuitesRunner([new TestParser(),new TestOpenType()],new buddy_reporting_ConsoleColorReporter());
+	var runner = new buddy_SuitesRunner([new TestParser(),new tables_GposTable(),new tables_LocaTable(),new TestLayout(),new TestOpenType()],new buddy_reporting_ConsoleColorReporter());
 	var oldTrace = haxe_Log.trace;
 	var outputError = function() {
 		haxe_Log.trace = oldTrace;
@@ -494,6 +494,141 @@ buddy_BuddySuite.prototype = {
 	}
 	,__class__: buddy_BuddySuite
 };
+var TestLayout = function() {
+	var _gthis = this;
+	buddy_BuddySuite.call(this);
+	this.describe("layout.js",buddy_TestFunc.Sync(function() {
+		var font;
+		var layout;
+		var notdefGlyph = new opentype_Glyph(new opentype_GlyphOptions(".notdef",null,0,null,null));
+		var defaultLayoutTable = new TestLayoutTable(1,[],[],[]);
+		var _this = "abcdefghijklmnopqrstuvwxyz".split("");
+		var result = new Array(_this.length);
+		var _g = 0;
+		var _g1 = _this.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var c = _this[i];
+			result[i] = new opentype_Glyph(new opentype_GlyphOptions(c,null,HxOverrides.cca(c,0),null,null));
+		}
+		var glyphs = [notdefGlyph].concat(result);
+		var tmp = buddy_TestFunc.Sync(function() {
+			font = new opentype_Font(new opentype_FontOptions(new opentype_FontNames("MyFont",null,"Medium",null,null,null,null,null,null,null,null,null,null,null,null),1000,800,-200,null,null,null,null,glyphs,null));
+			layout = new opentype_Layout(font,"gsub");
+			layout.createDefaultTable = function() {
+				return defaultLayoutTable;
+			};
+		});
+		_gthis.beforeEach(tmp);
+		var tmp1 = buddy_TestFunc.Sync(function() {
+			var tmp2 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldDynamic.should(layout.getTable()).be(null,{ fileName : "TestLayout.hx", lineNumber : 48, className : "TestLayout", methodName : "new"});
+				buddy_ShouldDynamic.should(layout.getTable(false)).be(null,{ fileName : "TestLayout.hx", lineNumber : 49, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("must not always create an empty default layout table",tmp2,null,{ fileName : "TestLayout.hx", lineNumber : 47, className : "TestLayout", methodName : "new"});
+			var tmp3 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(layout.getTable(true).version).be(defaultLayoutTable.version,{ fileName : "TestLayout.hx", lineNumber : 53, className : "TestLayout", methodName : "new"});
+				buddy_ShouldIterable.should(layout.getTable(true).scripts).containExactly(defaultLayoutTable.scripts,{ fileName : "TestLayout.hx", lineNumber : 54, className : "TestLayout", methodName : "new"});
+				buddy_ShouldIterable.should(layout.getTable(true).lookups).containExactly(defaultLayoutTable.lookups,{ fileName : "TestLayout.hx", lineNumber : 55, className : "TestLayout", methodName : "new"});
+				buddy_ShouldIterable.should(layout.getTable(true).features).containExactly(defaultLayoutTable.features,{ fileName : "TestLayout.hx", lineNumber : 56, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("must create an empty default layout table on demand",tmp3,null,{ fileName : "TestLayout.hx", lineNumber : 52, className : "TestLayout", methodName : "new"});
+		});
+		_gthis.describe("getTable",tmp1);
+		var tmp4 = buddy_TestFunc.Sync(function() {
+			var tmp5 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldDynamic.should(layout.getScriptTable("DFLT")).be(null,{ fileName : "TestLayout.hx", lineNumber : 61, className : "TestLayout", methodName : "new"});
+				buddy_ShouldDynamic.should(layout.getScriptTable("DFLT",false)).be(null,{ fileName : "TestLayout.hx", lineNumber : 62, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("must not create a new script table if it does not exist",tmp5,null,{ fileName : "TestLayout.hx", lineNumber : 60, className : "TestLayout", methodName : "new"});
+			var tmp6 = buddy_TestFunc.Sync(function() {
+				var scriptTable = layout.getScriptTable("DFLT",true);
+				buddy_ShouldDynamic.should(scriptTable).get_not().be(null,{ fileName : "TestLayout.hx", lineNumber : 67, className : "TestLayout", methodName : "new"});
+				buddy_ShouldDynamic.should(scriptTable.defaultLangSys).get_not().be(null,{ fileName : "TestLayout.hx", lineNumber : 68, className : "TestLayout", methodName : "new"});
+				buddy_ShouldDynamic.should(layout.getScriptTable("DFLT",true)).be(scriptTable,{ fileName : "TestLayout.hx", lineNumber : 69, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("must create an new script table only on demand and if it does not exist",tmp6,null,{ fileName : "TestLayout.hx", lineNumber : 65, className : "TestLayout", methodName : "new"});
+		});
+		_gthis.describe("getScriptTable",tmp4);
+		var tmp7 = buddy_TestFunc.Sync(function() {
+			var classDef1 = new opentype_tables_subtables_ClassDefinition(1,50,[0,1,0,1,0,1,2,1,0,2,1,1,0,0,0,2,2,0,0,1,0,0,0,0,2,1],null);
+			var classDef2 = new opentype_tables_subtables_ClassDefinition(2,null,null,[new opentype_tables_subtables_RangeRecord(70,71,2),new opentype_tables_subtables_RangeRecord(73,73,2),new opentype_tables_subtables_RangeRecord(210,211,1)]);
+			var tmp8 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,50)).be(0,{ fileName : "TestLayout.hx", lineNumber : 94, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,51)).be(1,{ fileName : "TestLayout.hx", lineNumber : 95, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,52)).be(0,{ fileName : "TestLayout.hx", lineNumber : 96, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,56)).be(2,{ fileName : "TestLayout.hx", lineNumber : 97, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,74)).be(2,{ fileName : "TestLayout.hx", lineNumber : 98, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,75)).be(1,{ fileName : "TestLayout.hx", lineNumber : 99, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,49)).be(0,{ fileName : "TestLayout.hx", lineNumber : 102, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef1,80)).be(0,{ fileName : "TestLayout.hx", lineNumber : 103, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("should find a glyph class in a format 1 class definition table",tmp8,null,{ fileName : "TestLayout.hx", lineNumber : 93, className : "TestLayout", methodName : "new"});
+			var tmp9 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,70)).be(2,{ fileName : "TestLayout.hx", lineNumber : 107, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,71)).be(2,{ fileName : "TestLayout.hx", lineNumber : 108, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,73)).be(2,{ fileName : "TestLayout.hx", lineNumber : 109, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,210)).be(1,{ fileName : "TestLayout.hx", lineNumber : 110, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,211)).be(1,{ fileName : "TestLayout.hx", lineNumber : 111, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,69)).be(0,{ fileName : "TestLayout.hx", lineNumber : 114, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,72)).be(0,{ fileName : "TestLayout.hx", lineNumber : 115, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,74)).be(0,{ fileName : "TestLayout.hx", lineNumber : 116, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getGlyphClass(classDef2,212)).be(0,{ fileName : "TestLayout.hx", lineNumber : 117, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("should find a glyph class in a format 2 class definition table",tmp9,null,{ fileName : "TestLayout.hx", lineNumber : 106, className : "TestLayout", methodName : "new"});
+		});
+		_gthis.describe("getGlyphClass",tmp7);
+		var tmp10 = buddy_TestFunc.Sync(function() {
+			var cov1 = new opentype_tables_subtables_Coverage(1,null,[79,293,297]);
+			var cov2 = new opentype_tables_subtables_Coverage(2,[new opentype_tables_subtables_RangeRecord(6,6,0),new opentype_tables_subtables_RangeRecord(11,11,1),new opentype_tables_subtables_RangeRecord(16,16,2),new opentype_tables_subtables_RangeRecord(18,18,3),new opentype_tables_subtables_RangeRecord(37,41,4),new opentype_tables_subtables_RangeRecord(44,52,9),new opentype_tables_subtables_RangeRecord(56,62,18)],null);
+			var tmp11 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,79)).be(0,{ fileName : "TestLayout.hx", lineNumber : 139, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,293)).be(1,{ fileName : "TestLayout.hx", lineNumber : 140, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,297)).be(2,{ fileName : "TestLayout.hx", lineNumber : 141, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,51)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 143, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,128)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 144, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov1,512)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 145, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("should find a glyph in a format 1 coverage table",tmp11,null,{ fileName : "TestLayout.hx", lineNumber : 138, className : "TestLayout", methodName : "new"});
+			var tmp12 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,6)).be(0,{ fileName : "TestLayout.hx", lineNumber : 149, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,11)).be(1,{ fileName : "TestLayout.hx", lineNumber : 150, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,37)).be(4,{ fileName : "TestLayout.hx", lineNumber : 151, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,38)).be(5,{ fileName : "TestLayout.hx", lineNumber : 152, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,56)).be(18,{ fileName : "TestLayout.hx", lineNumber : 153, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,62)).be(24,{ fileName : "TestLayout.hx", lineNumber : 154, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,5)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 156, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,8)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 157, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,55)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 158, className : "TestLayout", methodName : "new"});
+				buddy_ShouldFloat.should(layout.getCoverageIndex(cov2,70)).be(-1,{ fileName : "TestLayout.hx", lineNumber : 159, className : "TestLayout", methodName : "new"});
+			});
+			_gthis.it("should find a glyph in a format 2 coverage table",tmp12,null,{ fileName : "TestLayout.hx", lineNumber : 148, className : "TestLayout", methodName : "new"});
+		});
+		_gthis.describe("getCoverageIndex",tmp10);
+	}));
+};
+TestLayout.__name__ = "TestLayout";
+TestLayout.__super__ = buddy_BuddySuite;
+TestLayout.prototype = $extend(buddy_BuddySuite.prototype,{
+	__class__: TestLayout
+});
+var opentype_tables_ILayoutTable = function() { };
+opentype_tables_ILayoutTable.__name__ = "opentype.tables.ILayoutTable";
+opentype_tables_ILayoutTable.__isInterface__ = true;
+opentype_tables_ILayoutTable.prototype = {
+	__class__: opentype_tables_ILayoutTable
+};
+var TestLayoutTable = function(version,scripts,lookups,features) {
+	this.version = version;
+	this.scripts = scripts;
+	this.lookups = lookups;
+	this.features = features;
+};
+TestLayoutTable.__name__ = "TestLayoutTable";
+TestLayoutTable.__interfaces__ = [opentype_tables_ILayoutTable];
+TestLayoutTable.prototype = {
+	__class__: TestLayoutTable
+};
 var TestOpenType = function() {
 	var _gthis = this;
 	buddy_BuddySuite.call(this);
@@ -523,7 +658,7 @@ var TestOpenType = function() {
 		var tmp3 = buddy_TestFunc.Sync(function() {
 			var fontBytes1;
 			var tmp4 = buddy_TestFunc.Async(function(done1) {
-				opentype_OpenType.loadFromFile("fonts/lato.ttf",function(b1) {
+				opentype_OpenType.loadFromFile("fonts/arial.ttf",function(b1) {
 					fontBytes1 = b1;
 					done1();
 					return;
@@ -537,7 +672,7 @@ var TestOpenType = function() {
 				font = opentype_OpenType.parse(fontBytes1);
 				buddy_ShouldDynamic.should(font).beType(opentype_Font,{ fileName : "TestOpenType.hx", lineNumber : 39, className : "TestOpenType", methodName : "new"});
 			});
-			_gthis.it("can parse Bytes to Font type.",tmp5,null,{ fileName : "TestOpenType.hx", lineNumber : 37, className : "TestOpenType", methodName : "new"});
+			_gthis.it("can parse Bytes of ttf to Font type.",tmp5,null,{ fileName : "TestOpenType.hx", lineNumber : 37, className : "TestOpenType", methodName : "new"});
 			var tmp6 = buddy_TestFunc.Sync(function() {
 				buddy_ShouldEnum.should(font.outlinesFormat).equal(opentype_Flavor.Ttf,{ fileName : "TestOpenType.hx", lineNumber : 42, className : "TestOpenType", methodName : "new"});
 			});
@@ -559,15 +694,57 @@ var TestOpenType = function() {
 			var font1;
 			var tmp9 = buddy_TestFunc.Sync(function() {
 				font1 = opentype_OpenType.parse(fontBytes2);
-				buddy_ShouldDynamic.should(font1).beType(opentype_Font,{ fileName : "TestOpenType.hx", lineNumber : 58, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldDynamic.should(font1).beType(opentype_Font,{ fileName : "TestOpenType.hx", lineNumber : 56, className : "TestOpenType", methodName : "new"});
 			});
-			_gthis.it("can parse Bytes to Font type.",tmp9,null,{ fileName : "TestOpenType.hx", lineNumber : 56, className : "TestOpenType", methodName : "new"});
+			_gthis.it("can parse Bytes of woff to Font type.",tmp9,null,{ fileName : "TestOpenType.hx", lineNumber : 54, className : "TestOpenType", methodName : "new"});
 			var tmp10 = buddy_TestFunc.Sync(function() {
-				buddy_ShouldEnum.should(font1.outlinesFormat).equal(opentype_Flavor.Ttf,{ fileName : "TestOpenType.hx", lineNumber : 61, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldEnum.should(font1.outlinesFormat).equal(opentype_Flavor.Ttf,{ fileName : "TestOpenType.hx", lineNumber : 59, className : "TestOpenType", methodName : "new"});
 			});
-			_gthis.it("can detect and set outlinesFormat.",tmp10,null,{ fileName : "TestOpenType.hx", lineNumber : 60, className : "TestOpenType", methodName : "new"});
+			_gthis.it("can detect and set outlinesFormat.",tmp10,null,{ fileName : "TestOpenType.hx", lineNumber : 58, className : "TestOpenType", methodName : "new"});
 		});
 		_gthis.describe("parse",tmp7);
+		var tmp11 = buddy_TestFunc.Sync(function() {
+			var fontBytes3;
+			var font2;
+			var tmp12 = buddy_TestFunc.Async(function(done3) {
+				opentype_OpenType.loadFromFile("fonts/lato.ttf",function(b3) {
+					fontBytes3 = b3;
+					font2 = opentype_OpenType.parse(fontBytes3);
+					done3();
+					return;
+				},function(e3) {
+					return;
+				});
+			});
+			_gthis.beforeAll(tmp12);
+			var tmp13 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldDynamic.should(font2.hasChar(0)).be(true,{ fileName : "TestOpenType.hx", lineNumber : 73, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldDynamic.should(font2.hasChar(13)).be(true,{ fileName : "TestOpenType.hx", lineNumber : 74, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldDynamic.should(font2.hasChar(12)).be(false,{ fileName : "TestOpenType.hx", lineNumber : 75, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldDynamic.should(font2.hasChar(32)).be(true,{ fileName : "TestOpenType.hx", lineNumber : 76, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldDynamic.should(font2.hasChar(65)).be(true,{ fileName : "TestOpenType.hx", lineNumber : 77, className : "TestOpenType", methodName : "new"});
+			});
+			_gthis.it("hasChar can check if font has a glyph for a given character.",tmp13,null,{ fileName : "TestOpenType.hx", lineNumber : 72, className : "TestOpenType", methodName : "new"});
+			var tmp14 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(font2.charToGlyphIndex(0)).be(1,{ fileName : "TestOpenType.hx", lineNumber : 81, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldFloat.should(font2.charToGlyphIndex(13)).be(2,{ fileName : "TestOpenType.hx", lineNumber : 82, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldFloat.should(font2.charToGlyphIndex(32)).be(3,{ fileName : "TestOpenType.hx", lineNumber : 83, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldFloat.should(font2.charToGlyphIndex(65)).be(36,{ fileName : "TestOpenType.hx", lineNumber : 84, className : "TestOpenType", methodName : "new"});
+			});
+			_gthis.it("charToGlyphIndex can find a index for a given charater.",tmp14,null,{ fileName : "TestOpenType.hx", lineNumber : 80, className : "TestOpenType", methodName : "new"});
+			var tmp15 = buddy_TestFunc.Sync(function() {
+				buddy_ShouldFloat.should(font2.charToGlyph(65).unicode).be(65,{ fileName : "TestOpenType.hx", lineNumber : 88, className : "TestOpenType", methodName : "new"});
+				buddy_ShouldFloat.should(font2.charToGlyph(32).unicode).be(32,{ fileName : "TestOpenType.hx", lineNumber : 89, className : "TestOpenType", methodName : "new"});
+			});
+			_gthis.it("charToGlyph can find a glyph for a given charater.",tmp15,null,{ fileName : "TestOpenType.hx", lineNumber : 87, className : "TestOpenType", methodName : "new"});
+			var tmp16 = buddy_TestFunc.Sync(function() {
+				var ia = font2.charToGlyphIndex(65);
+				var iw = font2.charToGlyphIndex(87);
+				buddy_ShouldFloat.should(font2.getKerningValueForIndexes(ia,iw)).be(-84,{ fileName : "TestOpenType.hx", lineNumber : 96, className : "TestOpenType", methodName : "new"});
+			});
+			_gthis.it("charToGlyphIndex can find a index for a given charater.",tmp16,null,{ fileName : "TestOpenType.hx", lineNumber : 93, className : "TestOpenType", methodName : "new"});
+		});
+		_gthis.describe("font",tmp11);
 	}));
 };
 TestOpenType.__name__ = "TestOpenType";
@@ -582,59 +759,59 @@ var TestParser = function() {
 		var tmp = buddy_TestFunc.Sync(function() {
 			var tmp1 = buddy_TestFunc.Sync(function() {
 				var p = new opentype_Parser(TestUtil.unhex("1234"),0);
-				buddy_ShouldFloat.should(p.parseByte()).be(18,{ fileName : "TestParser.hx", lineNumber : 13, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p.relativeOffset).be(1,{ fileName : "TestParser.hx", lineNumber : 14, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p.parseByte()).be(52,{ fileName : "TestParser.hx", lineNumber : 15, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 16, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p.parseByte()).be(18,{ fileName : "TestParser.hx", lineNumber : 15, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p.relativeOffset).be(1,{ fileName : "TestParser.hx", lineNumber : 16, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p.parseByte()).be(52,{ fileName : "TestParser.hx", lineNumber : 17, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 18, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a byte",tmp1,null,{ fileName : "TestParser.hx", lineNumber : 11, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse a byte",tmp1,null,{ fileName : "TestParser.hx", lineNumber : 13, className : "TestParser", methodName : "new"});
 		});
 		_gthis.describe("parseByte",tmp);
 		var tmp2 = buddy_TestFunc.Sync(function() {
 			var tmp3 = buddy_TestFunc.Sync(function() {
 				var p1 = new opentype_Parser(TestUtil.unhex("0080"),0);
 				p1.parseChar();
-				buddy_ShouldFloat.should(p1.relativeOffset).be(1,{ fileName : "TestParser.hx", lineNumber : 24, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p1.relativeOffset).be(1,{ fileName : "TestParser.hx", lineNumber : 26, className : "TestParser", methodName : "new"});
 				p1.parseChar();
-				buddy_ShouldFloat.should(p1.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 26, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p1.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 28, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a character",tmp3,null,{ fileName : "TestParser.hx", lineNumber : 21, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse a character",tmp3,null,{ fileName : "TestParser.hx", lineNumber : 23, className : "TestParser", methodName : "new"});
 		});
 		_gthis.describe("parseChar",tmp2);
 		var tmp4 = buddy_TestFunc.Sync(function() {
 			var tmp5 = buddy_TestFunc.Sync(function() {
 				var p2 = new opentype_Parser(TestUtil.unhex("0080"),0);
-				buddy_ShouldFloat.should(p2.parseUShort()).be(128,{ fileName : "TestParser.hx", lineNumber : 33, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p2.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 34, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p2.parseUShort()).be(128,{ fileName : "TestParser.hx", lineNumber : 35, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p2.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 36, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a 16 bit integer",tmp5,null,{ fileName : "TestParser.hx", lineNumber : 31, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse a 16 bit integer",tmp5,null,{ fileName : "TestParser.hx", lineNumber : 33, className : "TestParser", methodName : "new"});
 		});
 		_gthis.describe("parseUShort",tmp4);
 		var tmp6 = buddy_TestFunc.Sync(function() {
 			var tmp7 = buddy_TestFunc.Sync(function() {
 				var p3 = new opentype_Parser(TestUtil.unhex("0004 1234 FACE 5F5F"),0);
-				buddy_ShouldFloat.should(p3.parsePointer().parseUShort()).be(64206,{ fileName : "TestParser.hx", lineNumber : 41, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p3.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 42, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p3.parsePointer().parseUShort()).be(64206,{ fileName : "TestParser.hx", lineNumber : 43, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p3.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 44, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse 16 bit offset from the stream and invoke a parser function with that offset",tmp7,null,{ fileName : "TestParser.hx", lineNumber : 39, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse 16 bit offset from the stream",tmp7,null,{ fileName : "TestParser.hx", lineNumber : 41, className : "TestParser", methodName : "new"});
 		});
 		_gthis.describe("parsePointer",tmp6);
 		var tmp8 = buddy_TestFunc.Sync(function() {
 			var tmp9 = buddy_TestFunc.Sync(function() {
 				var p4 = new opentype_Parser(TestUtil.unhex("0000"),0);
-				buddy_ShouldIterable.should(p4.parseUShortList()).containAll([],{ fileName : "TestParser.hx", lineNumber : 51, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p4.parseUShortList()).containExactly([],{ fileName : "TestParser.hx", lineNumber : 51, className : "TestParser", methodName : "new"});
 				buddy_ShouldFloat.should(p4.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 52, className : "TestParser", methodName : "new"});
 			});
 			_gthis.it("can parse an empty list",tmp9,null,{ fileName : "TestParser.hx", lineNumber : 49, className : "TestParser", methodName : "new"});
 			var tmp10 = buddy_TestFunc.Sync(function() {
 				var p5 = new opentype_Parser(TestUtil.unhex("0003 1234 DEAD BEEF"),0);
-				buddy_ShouldIterable.should(p5.parseUShortList()).containAll([4660,57005,48879],{ fileName : "TestParser.hx", lineNumber : 56, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p5.parseUShortList()).containExactly([4660,57005,48879],{ fileName : "TestParser.hx", lineNumber : 56, className : "TestParser", methodName : "new"});
 				buddy_ShouldFloat.should(p5.relativeOffset).be(8,{ fileName : "TestParser.hx", lineNumber : 57, className : "TestParser", methodName : "new"});
 			});
 			_gthis.it("can parse a list",tmp10,null,{ fileName : "TestParser.hx", lineNumber : 54, className : "TestParser", methodName : "new"});
 			var tmp11 = buddy_TestFunc.Sync(function() {
 				var p6 = new opentype_Parser(TestUtil.unhex("1234 DEAD BEEF 5678 9ABC"),0);
-				buddy_ShouldIterable.should(p6.parseUShortList(3)).containAll([4660,57005,48879],{ fileName : "TestParser.hx", lineNumber : 61, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p6.parseUShortListOfLength(3)).containExactly([4660,57005,48879],{ fileName : "TestParser.hx", lineNumber : 61, className : "TestParser", methodName : "new"});
 				buddy_ShouldFloat.should(p6.relativeOffset).be(6,{ fileName : "TestParser.hx", lineNumber : 62, className : "TestParser", methodName : "new"});
 			});
 			_gthis.it("can parse a list of predefined length",tmp11,null,{ fileName : "TestParser.hx", lineNumber : 59, className : "TestParser", methodName : "new"});
@@ -644,192 +821,233 @@ var TestParser = function() {
 			var tmp13 = buddy_TestFunc.Sync(function() {
 				var data = "0003 12 34 56 78 9A BC";
 				var p7 = new opentype_Parser(TestUtil.unhex(data),0);
-				buddy_ShouldIterable.should(p7.parseList(null,$bind(p7,p7.parseUShort))).containAll([4660,22136,39612],{ fileName : "TestParser.hx", lineNumber : 70, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p7.parseList($bind(p7,p7.parseUShort))).containExactly([4660,22136,39612],{ fileName : "TestParser.hx", lineNumber : 70, className : "TestParser", methodName : "new"});
 				buddy_ShouldFloat.should(p7.relativeOffset).be(8,{ fileName : "TestParser.hx", lineNumber : 71, className : "TestParser", methodName : "new"});
 			});
 			_gthis.it("can parse a list of values",tmp13,null,{ fileName : "TestParser.hx", lineNumber : 67, className : "TestParser", methodName : "new"});
-			var tmp14 = buddy_TestFunc.Sync(function() {
-				var data1 = "12 34 56 78 9A BC";
-				var p8 = new opentype_Parser(TestUtil.unhex(data1),0);
-				buddy_ShouldIterable.should(p8.parseList(3,$bind(p8,p8.parseUShort))).containAll([4660,22136,39612],{ fileName : "TestParser.hx", lineNumber : 76, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p8.relativeOffset).be(6,{ fileName : "TestParser.hx", lineNumber : 77, className : "TestParser", methodName : "new"});
-			});
-			_gthis.it("can parse a list of values of predefined length",tmp14,null,{ fileName : "TestParser.hx", lineNumber : 73, className : "TestParser", methodName : "new"});
 		});
 		_gthis.describe("parseList",tmp12);
-		var tmp15 = buddy_TestFunc.Sync(function() {
-			var tmp16 = buddy_TestFunc.Sync(function() {
+		var tmp14 = buddy_TestFunc.Sync(function() {
+			var tmp15 = buddy_TestFunc.Sync(function() {
+				var data1 = "12 34 56 78 9A BC";
+				var p8 = new opentype_Parser(TestUtil.unhex(data1),0);
+				buddy_ShouldIterable.should(p8.parseListOfLength(3,$bind(p8,p8.parseUShort))).containExactly([4660,22136,39612],{ fileName : "TestParser.hx", lineNumber : 78, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p8.relativeOffset).be(6,{ fileName : "TestParser.hx", lineNumber : 79, className : "TestParser", methodName : "new"});
+			});
+			_gthis.it("can parse a list of values of predefined length",tmp15,null,{ fileName : "TestParser.hx", lineNumber : 75, className : "TestParser", methodName : "new"});
+		});
+		_gthis.describe("parseListOfLength",tmp14);
+		var tmp16 = buddy_TestFunc.Sync(function() {
+			var tmp17 = buddy_TestFunc.Sync(function() {
 				var data2 = "0002 12 34 56 78 9A BC";
 				var p9 = new opentype_Parser(TestUtil.unhex(data2),0);
-				var result = p9.parseRecordList(null,[new opentype_RecordDescription("a",$bind(p9,p9.parseByte)),new opentype_RecordDescription("b",$bind(p9,p9.parseUShort))]);
-				buddy_ShouldString.should(result[0][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 86, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result[0][0].value).be(18,{ fileName : "TestParser.hx", lineNumber : 87, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result[0][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 88, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result[0][1].value).be(13398,{ fileName : "TestParser.hx", lineNumber : 89, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result[1][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 90, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result[1][0].value).be(120,{ fileName : "TestParser.hx", lineNumber : 91, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result[1][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 92, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result[1][1].value).be(39612,{ fileName : "TestParser.hx", lineNumber : 93, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p9.relativeOffset).be(8,{ fileName : "TestParser.hx", lineNumber : 94, className : "TestParser", methodName : "new"});
+				var result = p9.parseRecordList([new opentype_RecordDescription("a",opentype_Parser.byte),new opentype_RecordDescription("b",opentype_Parser.uShort)]);
+				buddy_ShouldString.should(result[0][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 87, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result[0][0].value).be(18,{ fileName : "TestParser.hx", lineNumber : 88, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result[0][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 89, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result[0][1].value).be(13398,{ fileName : "TestParser.hx", lineNumber : 90, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result[1][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 91, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result[1][0].value).be(120,{ fileName : "TestParser.hx", lineNumber : 92, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result[1][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 93, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result[1][1].value).be(39612,{ fileName : "TestParser.hx", lineNumber : 94, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p9.relativeOffset).be(8,{ fileName : "TestParser.hx", lineNumber : 95, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a list of records",tmp16,null,{ fileName : "TestParser.hx", lineNumber : 82, className : "TestParser", methodName : "new"});
-			var tmp17 = buddy_TestFunc.Sync(function() {
+			_gthis.it("can parse a list of records",tmp17,null,{ fileName : "TestParser.hx", lineNumber : 83, className : "TestParser", methodName : "new"});
+			var tmp18 = buddy_TestFunc.Sync(function() {
 				var data3 = "0000";
 				var p10 = new opentype_Parser(TestUtil.unhex(data3),0);
-				buddy_ShouldIterable.should(p10.parseRecordList(null,[new opentype_RecordDescription("a",$bind(p10,p10.parseByte)),new opentype_RecordDescription("b",$bind(p10,p10.parseUShort))])).containAll([],{ fileName : "TestParser.hx", lineNumber : 99, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p10.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 100, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p10.parseRecordList([new opentype_RecordDescription("a",opentype_Parser.byte),new opentype_RecordDescription("b",opentype_Parser.uShort)])).containExactly([],{ fileName : "TestParser.hx", lineNumber : 100, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p10.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 101, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse an empty list of records",tmp17,null,{ fileName : "TestParser.hx", lineNumber : 96, className : "TestParser", methodName : "new"});
-			var tmp18 = buddy_TestFunc.Sync(function() {
-				var data4 = "12 34 56 78 9A BC";
-				var p11 = new opentype_Parser(TestUtil.unhex(data4),0);
-				var result1 = p11.parseRecordList(2,[new opentype_RecordDescription("a",$bind(p11,p11.parseByte)),new opentype_RecordDescription("b",$bind(p11,p11.parseUShort))]);
-				buddy_ShouldString.should(result1[0][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 106, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result1[0][0].value).be(18,{ fileName : "TestParser.hx", lineNumber : 107, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result1[0][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 108, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result1[0][1].value).be(13398,{ fileName : "TestParser.hx", lineNumber : 109, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result1[1][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 110, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result1[1][0].value).be(120,{ fileName : "TestParser.hx", lineNumber : 111, className : "TestParser", methodName : "new"});
-				buddy_ShouldString.should(result1[1][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 112, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result1[1][1].value).be(39612,{ fileName : "TestParser.hx", lineNumber : 113, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p11.relativeOffset).be(6,{ fileName : "TestParser.hx", lineNumber : 114, className : "TestParser", methodName : "new"});
-			});
-			_gthis.it("can parse a list of records of predefined length",tmp18,null,{ fileName : "TestParser.hx", lineNumber : 102, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse an empty list of records",tmp18,null,{ fileName : "TestParser.hx", lineNumber : 97, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseRecordList",tmp15);
+		_gthis.describe("parseRecordList",tmp16);
 		var tmp19 = buddy_TestFunc.Sync(function() {
 			var tmp20 = buddy_TestFunc.Sync(function() {
+				var data4 = "12 34 56 78 9A BC";
+				var p11 = new opentype_Parser(TestUtil.unhex(data4),0);
+				var result1 = p11.parseRecordListOfLength(2,[new opentype_RecordDescription("a",opentype_Parser.byte),new opentype_RecordDescription("b",opentype_Parser.uShort)]);
+				buddy_ShouldString.should(result1[0][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 109, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result1[0][0].value).be(18,{ fileName : "TestParser.hx", lineNumber : 110, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result1[0][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 111, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result1[0][1].value).be(13398,{ fileName : "TestParser.hx", lineNumber : 112, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result1[1][0].name).be("a",{ fileName : "TestParser.hx", lineNumber : 113, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result1[1][0].value).be(120,{ fileName : "TestParser.hx", lineNumber : 114, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(result1[1][1].name).be("b",{ fileName : "TestParser.hx", lineNumber : 115, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result1[1][1].value).be(39612,{ fileName : "TestParser.hx", lineNumber : 116, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p11.relativeOffset).be(6,{ fileName : "TestParser.hx", lineNumber : 117, className : "TestParser", methodName : "new"});
+			});
+			_gthis.it("can parse a list of records of predefined length",tmp20,null,{ fileName : "TestParser.hx", lineNumber : 105, className : "TestParser", methodName : "new"});
+		});
+		_gthis.describe("parseRecordListOfLength",tmp19);
+		var tmp21 = buddy_TestFunc.Sync(function() {
+			var tmp22 = buddy_TestFunc.Sync(function() {
 				var data5 = "0003 0008 000E 0016" + "0002 1234 5678" + "0003 DEAD BEEF FADE" + "0001 9876";
 				var p12 = new opentype_Parser(TestUtil.unhex(data5),0);
 				var result2 = p12.parseListOfListsOfUShort();
-				buddy_ShouldIterable.should(result2[0]).containAll([4660,22136],{ fileName : "TestParser.hx", lineNumber : 126, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(result2[1]).containAll([57005,48879,64222],{ fileName : "TestParser.hx", lineNumber : 127, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(result2[2]).containAll([39030],{ fileName : "TestParser.hx", lineNumber : 128, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(result2[0]).containExactly([4660,22136],{ fileName : "TestParser.hx", lineNumber : 129, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(result2[1]).containExactly([57005,48879,64222],{ fileName : "TestParser.hx", lineNumber : 130, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(result2[2]).containExactly([39030],{ fileName : "TestParser.hx", lineNumber : 131, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a list of lists of 16-bit integers",tmp20,null,{ fileName : "TestParser.hx", lineNumber : 119, className : "TestParser", methodName : "new"});
-			var tmp21 = buddy_TestFunc.Sync(function() {
+			_gthis.it("can parse a list of lists of 16-bit integers",tmp22,null,{ fileName : "TestParser.hx", lineNumber : 122, className : "TestParser", methodName : "new"});
+			var tmp23 = buddy_TestFunc.Sync(function() {
 				var p13 = new opentype_Parser(TestUtil.unhex("0000"),0);
-				buddy_ShouldIterable.should(p13.parseListOfListsOfUShort()).containAll([],{ fileName : "TestParser.hx", lineNumber : 132, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(p13.parseListOfListsOfUShort()).containExactly([],{ fileName : "TestParser.hx", lineNumber : 135, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse an empty list of lists",tmp21,null,{ fileName : "TestParser.hx", lineNumber : 130, className : "TestParser", methodName : "new"});
-			var tmp22 = buddy_TestFunc.Sync(function() {
+			_gthis.it("can parse an empty list of lists",tmp23,null,{ fileName : "TestParser.hx", lineNumber : 133, className : "TestParser", methodName : "new"});
+			var tmp24 = buddy_TestFunc.Sync(function() {
 				var p14 = new opentype_Parser(TestUtil.unhex("0001 0004 0000"),0);
 				var result3 = p14.parseListOfListsOfUShort();
-				buddy_ShouldFloat.should(result3.length).be(1,{ fileName : "TestParser.hx", lineNumber : 137, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(result3[0]).containAll([],{ fileName : "TestParser.hx", lineNumber : 138, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result3.length).be(1,{ fileName : "TestParser.hx", lineNumber : 140, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(result3[0]).containExactly([],{ fileName : "TestParser.hx", lineNumber : 141, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse list of empty lists",tmp22,null,{ fileName : "TestParser.hx", lineNumber : 134, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse list of empty lists",tmp24,null,{ fileName : "TestParser.hx", lineNumber : 137, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseListOfListsOf16",tmp19);
-		var tmp23 = buddy_TestFunc.Sync(function() {
-			var tmp24 = buddy_TestFunc.Sync(function() {
+		_gthis.describe("parseListOfListsOf16",tmp21);
+		var tmp25 = buddy_TestFunc.Sync(function() {
+			var tmp26 = buddy_TestFunc.Sync(function() {
 				var data6 = "0002 0006 0012" + "0002 0006 0009 12 34 56 78 9A BC" + "0001 0004 DE F0 12 ";
 				var p15 = new opentype_Parser(TestUtil.unhex(data6),0);
 				var parseRecord = function() {
 					return { a : p15.parseByte(), b : p15.parseUShort()};
 				};
 				var result4 = p15.parseListOfLists(parseRecord);
-				buddy_ShouldFloat.should(result4[0][0].a).be(18,{ fileName : "TestParser.hx", lineNumber : 154, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result4[0][0].b).be(13398,{ fileName : "TestParser.hx", lineNumber : 155, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result4[0][1].a).be(120,{ fileName : "TestParser.hx", lineNumber : 156, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result4[0][1].b).be(39612,{ fileName : "TestParser.hx", lineNumber : 157, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result4[1][0].a).be(222,{ fileName : "TestParser.hx", lineNumber : 158, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(result4[1][0].b).be(61458,{ fileName : "TestParser.hx", lineNumber : 159, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[0][0].a).be(18,{ fileName : "TestParser.hx", lineNumber : 157, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[0][0].b).be(13398,{ fileName : "TestParser.hx", lineNumber : 158, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[0][1].a).be(120,{ fileName : "TestParser.hx", lineNumber : 159, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[0][1].b).be(39612,{ fileName : "TestParser.hx", lineNumber : 160, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[1][0].a).be(222,{ fileName : "TestParser.hx", lineNumber : 161, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(result4[1][0].b).be(61458,{ fileName : "TestParser.hx", lineNumber : 162, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can parse a list of lists of records",tmp24,null,{ fileName : "TestParser.hx", lineNumber : 142, className : "TestParser", methodName : "new"});
+			_gthis.it("can parse a list of lists of records",tmp26,null,{ fileName : "TestParser.hx", lineNumber : 145, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseListOfLists",tmp23);
-		var tmp25 = buddy_TestFunc.Sync(function() {
-			var tmp26 = buddy_TestFunc.Sync(function() {
+		_gthis.describe("parseListOfLists",tmp25);
+		var tmp27 = buddy_TestFunc.Sync(function() {
+			var tmp28 = buddy_TestFunc.Sync(function() {
 				var data7 = "0004 1234" + "0001 0005 0038 003B 0041 0042 004A";
 				var p16 = new opentype_Parser(TestUtil.unhex(data7),4);
 				var coverage = opentype_Parser.coverage(p16);
-				buddy_ShouldFloat.should(coverage.format).be(1,{ fileName : "TestParser.hx", lineNumber : 170, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(coverage.glyphs).containAll([56,59,65,66,74],{ fileName : "TestParser.hx", lineNumber : 171, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(coverage.ranges).containAll([],{ fileName : "TestParser.hx", lineNumber : 172, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p16.relativeOffset).be(14,{ fileName : "TestParser.hx", lineNumber : 173, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(coverage.format).be(1,{ fileName : "TestParser.hx", lineNumber : 173, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(coverage.glyphs).containExactly([56,59,65,66,74],{ fileName : "TestParser.hx", lineNumber : 174, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(coverage.ranges).containExactly([],{ fileName : "TestParser.hx", lineNumber : 175, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p16.relativeOffset).be(14,{ fileName : "TestParser.hx", lineNumber : 176, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("should parse a CoverageFormat1 table",tmp26,null,{ fileName : "TestParser.hx", lineNumber : 164, className : "TestParser", methodName : "new"});
-			var tmp27 = buddy_TestFunc.Sync(function() {
+			_gthis.it("should parse a CoverageFormat1 table",tmp28,null,{ fileName : "TestParser.hx", lineNumber : 167, className : "TestParser", methodName : "new"});
+			var tmp29 = buddy_TestFunc.Sync(function() {
 				var data8 = "0004 1234" + "0002 0001 004E 0057 0000";
 				var p17 = new opentype_Parser(TestUtil.unhex(data8),4);
 				var coverage1 = opentype_Parser.coverage(p17);
-				buddy_ShouldFloat.should(coverage1.format).be(2,{ fileName : "TestParser.hx", lineNumber : 181, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(coverage1.glyphs).containAll([],{ fileName : "TestParser.hx", lineNumber : 182, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(coverage1.ranges[0].startGlyphId).be(78,{ fileName : "TestParser.hx", lineNumber : 183, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(coverage1.ranges[0].endGlyphId).be(87,{ fileName : "TestParser.hx", lineNumber : 184, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(coverage1.ranges[0].startCoverageIndex).be(0,{ fileName : "TestParser.hx", lineNumber : 185, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p17.relativeOffset).be(10,{ fileName : "TestParser.hx", lineNumber : 186, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(coverage1.format).be(2,{ fileName : "TestParser.hx", lineNumber : 184, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(coverage1.glyphs).containExactly([],{ fileName : "TestParser.hx", lineNumber : 185, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(coverage1.ranges[0].start).be(78,{ fileName : "TestParser.hx", lineNumber : 186, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(coverage1.ranges[0].end).be(87,{ fileName : "TestParser.hx", lineNumber : 187, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(coverage1.ranges[0].value).be(0,{ fileName : "TestParser.hx", lineNumber : 188, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p17.relativeOffset).be(10,{ fileName : "TestParser.hx", lineNumber : 189, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("should parse a CoverageFormat2 table",tmp27,null,{ fileName : "TestParser.hx", lineNumber : 175, className : "TestParser", methodName : "new"});
+			_gthis.it("should parse a CoverageFormat2 table",tmp29,null,{ fileName : "TestParser.hx", lineNumber : 178, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseCoverage",tmp25);
-		var tmp28 = buddy_TestFunc.Sync(function() {
-			var tmp29 = buddy_TestFunc.Sync(function() {
+		_gthis.describe("parseCoverage",tmp27);
+		var tmp30 = buddy_TestFunc.Sync(function() {
+			var tmp31 = buddy_TestFunc.Sync(function() {
 				var data9 = "0001 0032 001A" + "0000 0001 0000 0001 0000 0001 0002 0001 0000 0002 0001 0001 0000" + "0000 0000 0002 0002 0000 0000 0001 0000 0000 0000 0000 0002 0001";
 				var p18 = new opentype_Parser(TestUtil.unhex(data9),0);
 				var res = p18.parseClassDef();
-				buddy_ShouldFloat.should(res.format).be(1,{ fileName : "TestParser.hx", lineNumber : 198, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res.startGlyphId).be(50,{ fileName : "TestParser.hx", lineNumber : 199, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(res.classValueArray).containAll([0,1,0,1,0,1,2,1,0,2,1,1,0,0,0,2,2,0,0,1,0,0,0,0,2,1],{ fileName : "TestParser.hx", lineNumber : 200, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p18.relativeOffset).be(58,{ fileName : "TestParser.hx", lineNumber : 204, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res.format).be(1,{ fileName : "TestParser.hx", lineNumber : 201, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res.startGlyph).be(50,{ fileName : "TestParser.hx", lineNumber : 202, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(res.classes).containExactly([0,1,0,1,0,1,2,1,0,2,1,1,0,0,0,2,2,0,0,1,0,0,0,0,2,1],{ fileName : "TestParser.hx", lineNumber : 203, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p18.relativeOffset).be(58,{ fileName : "TestParser.hx", lineNumber : 207, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("should parse a ClassDefFormat1 table",tmp29,null,{ fileName : "TestParser.hx", lineNumber : 191, className : "TestParser", methodName : "new"});
-			var tmp30 = buddy_TestFunc.Sync(function() {
+			_gthis.it("should parse a ClassDefFormat1 table",tmp31,null,{ fileName : "TestParser.hx", lineNumber : 194, className : "TestParser", methodName : "new"});
+			var tmp32 = buddy_TestFunc.Sync(function() {
 				var data10 = "0002 0003 0030 0031 0002 0040 0041 0003 00D2 00D3 0001";
 				var p19 = new opentype_Parser(TestUtil.unhex(data10),0);
 				var res1 = p19.parseClassDef();
-				buddy_ShouldFloat.should(res1.format).be(2,{ fileName : "TestParser.hx", lineNumber : 211, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[0].startGlyphId).be(48,{ fileName : "TestParser.hx", lineNumber : 212, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[0].endGlyphId).be(49,{ fileName : "TestParser.hx", lineNumber : 213, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[0].classId).be(2,{ fileName : "TestParser.hx", lineNumber : 214, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[1].startGlyphId).be(64,{ fileName : "TestParser.hx", lineNumber : 215, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[1].endGlyphId).be(65,{ fileName : "TestParser.hx", lineNumber : 216, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[1].classId).be(3,{ fileName : "TestParser.hx", lineNumber : 217, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[2].startGlyphId).be(210,{ fileName : "TestParser.hx", lineNumber : 218, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[2].endGlyphId).be(211,{ fileName : "TestParser.hx", lineNumber : 219, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res1.classRangeRecords[2].classId).be(1,{ fileName : "TestParser.hx", lineNumber : 220, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p19.relativeOffset).be(22,{ fileName : "TestParser.hx", lineNumber : 221, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.format).be(2,{ fileName : "TestParser.hx", lineNumber : 214, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[0].start).be(48,{ fileName : "TestParser.hx", lineNumber : 215, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[0].end).be(49,{ fileName : "TestParser.hx", lineNumber : 216, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[0].value).be(2,{ fileName : "TestParser.hx", lineNumber : 217, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[1].start).be(64,{ fileName : "TestParser.hx", lineNumber : 218, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[1].end).be(65,{ fileName : "TestParser.hx", lineNumber : 219, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[1].value).be(3,{ fileName : "TestParser.hx", lineNumber : 220, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[2].start).be(210,{ fileName : "TestParser.hx", lineNumber : 221, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[2].end).be(211,{ fileName : "TestParser.hx", lineNumber : 222, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res1.ranges[2].value).be(1,{ fileName : "TestParser.hx", lineNumber : 223, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p19.relativeOffset).be(22,{ fileName : "TestParser.hx", lineNumber : 224, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("should parse a ClassDefFormat2 table",tmp30,null,{ fileName : "TestParser.hx", lineNumber : 206, className : "TestParser", methodName : "new"});
+			_gthis.it("should parse a ClassDefFormat2 table",tmp32,null,{ fileName : "TestParser.hx", lineNumber : 209, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseClassDef",tmp28);
-		var tmp31 = buddy_TestFunc.Sync(function() {
-			var tmp32 = buddy_TestFunc.Sync(function() {
-				var data11 = "0004 1234" + "0003 68616E69 0014 6B616E61 0018 6C61746E 001C" + "0000 0000 0000 0000" + "000A 0001 55524420 0016" + "0000 FFFF 0003 0000 0001 0002" + "0000 0003 0003 0000 0001 0002";
-				var p20 = new opentype_Parser(TestUtil.unhex(data11),0);
-			});
-			_gthis.it("should parse a ScriptList table",tmp32,null,{ fileName : "TestParser.hx", lineNumber : 227, className : "TestParser", methodName : "new"});
-		});
-		_gthis.describe("parseScriptList",tmp31);
+		_gthis.describe("parseClassDef",tmp30);
 		var tmp33 = buddy_TestFunc.Sync(function() {
 			var tmp34 = buddy_TestFunc.Sync(function() {
-				var data12 = "0004 0000" + "0003 0008 0010 0018" + "0004 000C 0001 0018" + "0004 000C 0001 0028" + "0004 000C 0001 0038" + "1234 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" + "5678 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" + "9ABC";
-				var lookupTableParsers = [null,null,null,null,opentype_Parser.uShort];
-				var p21 = new opentype_Parser(TestUtil.unhex(data12),0);
-				var res2 = p21.parseLookupList(lookupTableParsers);
-				buddy_ShouldFloat.should(res2[0].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 276, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res2[0].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 277, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(res2[0].subTables).containAll([4660],{ fileName : "TestParser.hx", lineNumber : 278, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res2[1].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 279, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res2[1].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 280, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(res2[1].subTables).containAll([22136],{ fileName : "TestParser.hx", lineNumber : 281, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res2[2].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 282, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(res2[2].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 283, className : "TestParser", methodName : "new"});
-				buddy_ShouldIterable.should(res2[2].subTables).containAll([39612],{ fileName : "TestParser.hx", lineNumber : 284, className : "TestParser", methodName : "new"});
-				buddy_ShouldFloat.should(p21.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 285, className : "TestParser", methodName : "new"});
+				var data11 = "0004 1234" + "0003 68616E69 0014 6B616E61 0018 6C61746E 001C" + "0000 0000 0000 0000" + "000A 0001 55524420 0016" + "0000 FFFF 0003 0000 0001 0002" + "0000 0003 0003 0000 0001 0002";
+				var p20 = new opentype_Parser(TestUtil.unhex(data11),0);
+				var sl = p20.parseScriptList();
+				buddy_ShouldString.should(sl[0].tag).be("hani",{ fileName : "TestParser.hx", lineNumber : 240, className : "TestParser", methodName : "new"});
+				buddy_ShouldDynamic.should(sl[0].script.defaultLangSys).be(null,{ fileName : "TestParser.hx", lineNumber : 241, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(sl[0].script.langSysRecords).containExactly([],{ fileName : "TestParser.hx", lineNumber : 242, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(sl[1].tag).be("kana",{ fileName : "TestParser.hx", lineNumber : 243, className : "TestParser", methodName : "new"});
+				buddy_ShouldDynamic.should(sl[1].script.defaultLangSys).be(null,{ fileName : "TestParser.hx", lineNumber : 244, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(sl[1].script.langSysRecords).containExactly([],{ fileName : "TestParser.hx", lineNumber : 245, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(sl[2].tag).be("latn",{ fileName : "TestParser.hx", lineNumber : 246, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(sl[2].script.defaultLangSys.reserved).be(0,{ fileName : "TestParser.hx", lineNumber : 247, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(sl[2].script.defaultLangSys.reqFeatureIndex).be(65535,{ fileName : "TestParser.hx", lineNumber : 248, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(sl[2].script.defaultLangSys.featureIndexes).containExactly([0,1,2],{ fileName : "TestParser.hx", lineNumber : 249, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(sl[2].script.langSysRecords[0].tag).be("URD ",{ fileName : "TestParser.hx", lineNumber : 250, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(sl[2].script.langSysRecords[0].langSys.reserved).be(0,{ fileName : "TestParser.hx", lineNumber : 251, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(sl[2].script.langSysRecords[0].langSys.reqFeatureIndex).be(3,{ fileName : "TestParser.hx", lineNumber : 252, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(sl[2].script.langSysRecords[0].langSys.featureIndexes).containExactly([0,1,2],{ fileName : "TestParser.hx", lineNumber : 253, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p20.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 254, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("should parse a LookupList table",tmp34,null,{ fileName : "TestParser.hx", lineNumber : 263, className : "TestParser", methodName : "new"});
+			_gthis.it("should parse a ScriptList table",tmp34,null,{ fileName : "TestParser.hx", lineNumber : 230, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("parseLookupList",tmp33);
+		_gthis.describe("parseScriptList",tmp33);
 		var tmp35 = buddy_TestFunc.Sync(function() {
 			var tmp36 = buddy_TestFunc.Sync(function() {
-				var data13 = TestUtil.unhex("0002 0000");
-				buddy_ShouldString.should(opentype_Parser.getTag(data13,0)).be(opentype_BytesHelper.fromCharCodes([0,2,0,0]),{ fileName : "TestParser.hx", lineNumber : 292, className : "TestParser", methodName : "new"});
+				var data12 = "0004 0000" + "0003 6C696761 0014 6C696761 001A 6C696761 0022" + "0000 0001 0000   0000 0002 0000 0001   0000 0003 0000 0001 0002";
+				var p21 = new opentype_Parser(TestUtil.unhex(data12),0);
+				var fl = p21.parseFeatureList();
+				buddy_ShouldString.should(fl[0].tag).be("liga",{ fileName : "TestParser.hx", lineNumber : 267, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(fl[0].feature.featureParams).be(0,{ fileName : "TestParser.hx", lineNumber : 268, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(fl[0].feature.lookupListIndexes).containExactly([0],{ fileName : "TestParser.hx", lineNumber : 269, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(fl[1].tag).be("liga",{ fileName : "TestParser.hx", lineNumber : 270, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(fl[1].feature.featureParams).be(0,{ fileName : "TestParser.hx", lineNumber : 271, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(fl[1].feature.lookupListIndexes).containExactly([0,1],{ fileName : "TestParser.hx", lineNumber : 272, className : "TestParser", methodName : "new"});
+				buddy_ShouldString.should(fl[2].tag).be("liga",{ fileName : "TestParser.hx", lineNumber : 273, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(fl[2].feature.featureParams).be(0,{ fileName : "TestParser.hx", lineNumber : 274, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(fl[2].feature.lookupListIndexes).containExactly([0,1,2],{ fileName : "TestParser.hx", lineNumber : 275, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p21.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 276, className : "TestParser", methodName : "new"});
 			});
-			_gthis.it("can read tag from font Bytes",tmp36,null,{ fileName : "TestParser.hx", lineNumber : 290, className : "TestParser", methodName : "new"});
+			_gthis.it("should parse a FeatureList table",tmp36,null,{ fileName : "TestParser.hx", lineNumber : 259, className : "TestParser", methodName : "new"});
 		});
-		_gthis.describe("getTag",tmp35);
+		_gthis.describe("parseFeatureList",tmp35);
+		var tmp37 = buddy_TestFunc.Sync(function() {
+			var tmp38 = buddy_TestFunc.Sync(function() {
+				var data13 = "0004 0000" + "0003 0008 0010 0018" + "0004 000C 0001 0018" + "0004 000C 0001 0028" + "0004 000C 0001 0038" + "1234 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" + "5678 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" + "9ABC";
+				var lookupTableParsers = [null,null,null,null,opentype_Parser.uShort];
+				var p22 = new opentype_Parser(TestUtil.unhex(data13),0);
+				var res2 = p22.parseLookupList(lookupTableParsers);
+				buddy_ShouldFloat.should(res2[0].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 294, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res2[0].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 295, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(res2[0].subTables).containExactly([4660],{ fileName : "TestParser.hx", lineNumber : 296, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res2[1].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 297, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res2[1].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 298, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(res2[1].subTables).containExactly([22136],{ fileName : "TestParser.hx", lineNumber : 299, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res2[2].lookupType).be(4,{ fileName : "TestParser.hx", lineNumber : 300, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(res2[2].lookupFlag).be(12,{ fileName : "TestParser.hx", lineNumber : 301, className : "TestParser", methodName : "new"});
+				buddy_ShouldIterable.should(res2[2].subTables).containExactly([39612],{ fileName : "TestParser.hx", lineNumber : 302, className : "TestParser", methodName : "new"});
+				buddy_ShouldFloat.should(p22.relativeOffset).be(2,{ fileName : "TestParser.hx", lineNumber : 303, className : "TestParser", methodName : "new"});
+			});
+			_gthis.it("should parse a LookupList table",tmp38,null,{ fileName : "TestParser.hx", lineNumber : 281, className : "TestParser", methodName : "new"});
+		});
+		_gthis.describe("parseLookupList",tmp37);
+		var tmp39 = buddy_TestFunc.Sync(function() {
+			var tmp40 = buddy_TestFunc.Sync(function() {
+				var data14 = TestUtil.unhex("0002 0000");
+				buddy_ShouldString.should(opentype_Parser.getTag(data14,0)).be(opentype_BytesHelper.fromCharCodes([0,2,0,0]),{ fileName : "TestParser.hx", lineNumber : 310, className : "TestParser", methodName : "new"});
+			});
+			_gthis.it("can read tag from font Bytes",tmp40,null,{ fileName : "TestParser.hx", lineNumber : 308, className : "TestParser", methodName : "new"});
+		});
+		_gthis.describe("getTag",tmp39);
 	}));
 };
 TestParser.__name__ = "TestParser";
@@ -2421,6 +2639,12 @@ haxe_CallStack.makeStack = function(s) {
 		return s;
 	}
 };
+var haxe_IMap = function() { };
+haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__isInterface__ = true;
+haxe_IMap.prototype = {
+	__class__: haxe_IMap
+};
 var haxe__$Int32_Int32_$Impl_$ = {};
 haxe__$Int32_Int32_$Impl_$.__name__ = "haxe._Int32.Int32_Impl_";
 haxe__$Int32_Int32_$Impl_$.ucompare = function(a,b) {
@@ -2497,6 +2721,22 @@ haxe_Timer.prototype = {
 	}
 	,__class__: haxe_Timer
 };
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
+haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+haxe_ds_IntMap.prototype = {
+	get: function(key) {
+		return this.h[key];
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) (this.h.hasOwnProperty(key) ? a.push(key | 0) : null);
+		return HxOverrides.iter(a);
+	}
+	,__class__: haxe_ds_IntMap
+};
 var haxe_ds_List = function() {
 	this.length = 0;
 };
@@ -2570,6 +2810,58 @@ haxe_ds__$List_ListIterator.prototype = {
 var haxe_ds_Option = $hxEnums["haxe.ds.Option"] = { __ename__ : true, __constructs__ : ["Some","None"]
 	,Some: ($_=function(v) { return {_hx_index:0,v:v,__enum__:"haxe.ds.Option",toString:$estr}; },$_.__params__ = ["v"],$_)
 	,None: {_hx_index:1,__enum__:"haxe.ds.Option",toString:$estr}
+};
+var haxe_ds_StringMap = function() {
+	this.h = { };
+};
+haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.prototype = {
+	get: function(key) {
+		if(__map_reserved[key] != null) {
+			return this.getReserved(key);
+		}
+		return this.h[key];
+	}
+	,setReserved: function(key,value) {
+		if(this.rh == null) {
+			this.rh = { };
+		}
+		this.rh["$" + key] = value;
+	}
+	,getReserved: function(key) {
+		if(this.rh == null) {
+			return null;
+		} else {
+			return this.rh["$" + key];
+		}
+	}
+	,existsReserved: function(key) {
+		if(this.rh == null) {
+			return false;
+		}
+		return this.rh.hasOwnProperty("$" + key);
+	}
+	,keys: function() {
+		return HxOverrides.iter(this.arrayKeys());
+	}
+	,arrayKeys: function() {
+		var out = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) {
+			out.push(key);
+		}
+		}
+		if(this.rh != null) {
+			for( var key in this.rh ) {
+			if(key.charCodeAt(0) == 36) {
+				out.push(key.substr(1));
+			}
+			}
+		}
+		return out;
+	}
+	,__class__: haxe_ds_StringMap
 };
 var haxe_io_Bytes = function(data) {
 	this.length = data.byteLength;
@@ -2770,6 +3062,21 @@ var haxe_io_Error = $hxEnums["haxe.io.Error"] = { __ename__ : true, __constructs
 };
 var haxe_io_Output = function() { };
 haxe_io_Output.__name__ = "haxe.io.Output";
+var haxe_iterators_MapKeyValueIterator = function(map) {
+	this.map = map;
+	this.keys = map.keys();
+};
+haxe_iterators_MapKeyValueIterator.__name__ = "haxe.iterators.MapKeyValueIterator";
+haxe_iterators_MapKeyValueIterator.prototype = {
+	hasNext: function() {
+		return this.keys.hasNext();
+	}
+	,next: function() {
+		var key = this.keys.next();
+		return { value : this.map.get(key), key : key};
+	}
+	,__class__: haxe_iterators_MapKeyValueIterator
+};
 var haxe_rtti_Meta = function() { };
 haxe_rtti_Meta.__name__ = "haxe.rtti.Meta";
 haxe_rtti_Meta.getType = function(t) {
@@ -3054,6 +3361,23 @@ opentype_BytesHelper.readU16BE = function(bytes,position) {
 	var second = bytes.b[position + 1];
 	return first * 256 + second;
 };
+opentype_BytesHelper.readS16BE = function(bytes,position) {
+	var position1 = position;
+	if(position1 == null) {
+		position1 = 0;
+	}
+	var ch1 = bytes.b[position1];
+	var position2 = position + 1;
+	if(position2 == null) {
+		position2 = 0;
+	}
+	var ch2 = bytes.b[position2];
+	var n = ch2 | ch1 << 8;
+	if((n & 32768) != 0) {
+		return n - 65536;
+	}
+	return n;
+};
 opentype_BytesHelper.readULong = function(p,position) {
 	if(position == null) {
 		position = 0;
@@ -3080,6 +3404,26 @@ opentype_BytesHelper.readULong = function(p,position) {
 	var ch4 = p.b[position4];
 	return ch4 | ch3 << 8 | ch2 << 16 | ch1 << 24;
 };
+opentype_BytesHelper.getFixed = function(p,position) {
+	if(position == null) {
+		position = 0;
+	}
+	var position1 = position;
+	if(position1 == null) {
+		position1 = 0;
+	}
+	var first = p.b[position1];
+	var second = p.b[position1 + 1];
+	var decimal = first * 256 + second;
+	var position2 = position + 2;
+	if(position2 == null) {
+		position2 = 0;
+	}
+	var first1 = p.b[position2];
+	var second1 = p.b[position2 + 1];
+	var fraction = first1 * 256 + second1;
+	return decimal + fraction / 65535;
+};
 var opentype_Check = function() { };
 opentype_Check.__name__ = "opentype.Check";
 opentype_Check.assert = function(predicate,message) {
@@ -3092,16 +3436,527 @@ var opentype_Compression = $hxEnums["opentype.Compression"] = { __ename__ : true
 	,Woff: {_hx_index:1,__enum__:"opentype.Compression",toString:$estr}
 	,Woff2: {_hx_index:2,__enum__:"opentype.Compression",toString:$estr}
 };
+var opentype_IEncoding = function() { };
+opentype_IEncoding.__name__ = "opentype.IEncoding";
+opentype_IEncoding.__isInterface__ = true;
+opentype_IEncoding.prototype = {
+	__class__: opentype_IEncoding
+};
+var opentype_DefaultEncoding = function(font) {
+	this.glyphs = font.glyphs != null ? font.glyphs : new opentype_GlyphSet(font);
+};
+opentype_DefaultEncoding.__name__ = "opentype.DefaultEncoding";
+opentype_DefaultEncoding.__interfaces__ = [opentype_IEncoding];
+opentype_DefaultEncoding.prototype = {
+	hasChar: function(char) {
+		return false;
+	}
+	,charToGlyphIndex: function(code) {
+		var _g = 0;
+		var _g1 = this.glyphs.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var glyph = this.glyphs.get(i);
+			var _g2 = 0;
+			var _g11 = glyph.unicodes.length;
+			while(_g2 < _g11) {
+				var j = _g2++;
+				if(glyph.unicodes[j] == code) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	,__class__: opentype_DefaultEncoding
+};
+var opentype_CmapEncoding = function(cmap) {
+	this.cmap = cmap;
+};
+opentype_CmapEncoding.__name__ = "opentype.CmapEncoding";
+opentype_CmapEncoding.__interfaces__ = [opentype_IEncoding];
+opentype_CmapEncoding.prototype = {
+	hasChar: function(char) {
+		return this.cmap.glyphIndexMap.h.hasOwnProperty(char);
+	}
+	,charToGlyphIndex: function(cpa) {
+		if(this.cmap.glyphIndexMap.h.hasOwnProperty(cpa)) {
+			return this.cmap.glyphIndexMap.h[cpa];
+		} else {
+			return 0;
+		}
+	}
+	,__class__: opentype_CmapEncoding
+};
+var opentype_Encoding = function() { };
+opentype_Encoding.__name__ = "opentype.Encoding";
+opentype_Encoding.addGlyphNames = function(font,lowMemory) {
+	if(!lowMemory) {
+		opentype_Encoding.addGlyphNamesAll(font);
+	}
+};
+opentype_Encoding.addGlyphNamesAll = function(font) {
+	var glyph;
+	var _g = new haxe_iterators_MapKeyValueIterator(font.tables.cmap.glyphIndexMap);
+	while(_g.hasNext()) {
+		var _g1 = _g.next();
+		var char = _g1.key;
+		var index = _g1.value;
+		glyph = font.glyphs.get(index);
+		glyph.addUnicode(char);
+	}
+};
 var opentype_Flavor = $hxEnums["opentype.Flavor"] = { __ename__ : true, __constructs__ : ["Ttf","Cff"]
 	,Ttf: {_hx_index:0,__enum__:"opentype.Flavor",toString:$estr}
 	,Cff: {_hx_index:1,__enum__:"opentype.Flavor",toString:$estr}
 };
-var opentype_Font = function() {
-	this.tables = new opentype_tables_Tables();
+var opentype_Font = function(options) {
+	this.tables = options != null && options.tables != null ? options.tables : new opentype_tables_Tables();
+	var tmp = options != null;
+	this.glyphs = new opentype_GlyphSet(this,options != null && options.glyphs != null ? options.glyphs : []);
+	this.encoding = new opentype_DefaultEncoding(this);
+	this.position = new opentype_Position(this);
 };
 opentype_Font.__name__ = "opentype.Font";
 opentype_Font.prototype = {
-	__class__: opentype_Font
+	getKerningValueForIndexes: function(leftIndex,rightIndex) {
+		if(this.position.hasKerningTables()) {
+			return this.position.getKerningValue(leftIndex,rightIndex);
+		}
+		var kp = leftIndex + "," + rightIndex;
+		var _this = this.kerningPairs;
+		if(__map_reserved[kp] != null ? _this.existsReserved(kp) : _this.h.hasOwnProperty(kp)) {
+			var _this1 = this.kerningPairs;
+			if(__map_reserved[kp] != null) {
+				return _this1.getReserved(kp);
+			} else {
+				return _this1.h[kp];
+			}
+		} else {
+			return 0;
+		}
+	}
+	,getKerningValue: function(leftGlyph,rightGlyph) {
+		return this.getKerningValueForIndexes(leftGlyph.index,rightGlyph.index);
+	}
+	,hasChar: function(code) {
+		return this.encoding.hasChar(code);
+	}
+	,charToGlyphIndex: function(s) {
+		return this.encoding.charToGlyphIndex(s);
+	}
+	,charToGlyph: function(c) {
+		var glyphIndex = this.charToGlyphIndex(c);
+		var glyph = this.glyphs.get(glyphIndex);
+		if(glyph == null) {
+			glyph = this.glyphs.get(0);
+		}
+		return glyph;
+	}
+	,__class__: opentype_Font
+};
+var opentype_HorizontalMetrics = function(advanceWidth,leftSideBearing) {
+};
+opentype_HorizontalMetrics.__name__ = "opentype.HorizontalMetrics";
+opentype_HorizontalMetrics.prototype = {
+	__class__: opentype_HorizontalMetrics
+};
+var opentype_FontOptions = function(names,unitsPerEm,ascender,descender,createdTimestamp,weightClass,widthClass,fsSelection,glyphs,tables) {
+	this.names = names;
+	this.unitsPerEm = unitsPerEm;
+	this.ascender = ascender;
+	this.descender = descender;
+	this.createdTimestamp = createdTimestamp;
+	this.weightClass = weightClass;
+	this.widthClass = widthClass;
+	this.fsSelection = fsSelection;
+	this.glyphs = glyphs;
+	this.tables = tables;
+};
+opentype_FontOptions.__name__ = "opentype.FontOptions";
+opentype_FontOptions.prototype = {
+	__class__: opentype_FontOptions
+};
+var opentype_FontNames = function(fontFamily,styleName,fontSubfamily,fullName,postScriptName,designer,designerURL,manufacturer,manufacturerURL,license,licenseURL,version,description,copyright,trademark) {
+	this.fontFamily = fontFamily;
+	this.styleName = styleName;
+	this.fontSubfamily = fontSubfamily;
+	this.fullName = fullName;
+	this.postScriptName = postScriptName;
+	this.designer = designer;
+	this.designerURL = designerURL;
+	this.manufacturer = manufacturer;
+	this.manufacturerURL = manufacturerURL;
+	this.license = license;
+	this.licenseURL = licenseURL;
+	this.version = version;
+	this.description = description;
+	this.copyright = copyright;
+	this.trademark = trademark;
+};
+opentype_FontNames.__name__ = "opentype.FontNames";
+opentype_FontNames.prototype = {
+	__class__: opentype_FontNames
+};
+var opentype_Glyph = function(options) {
+	this.index = options.index > 0 ? options.index : 0;
+	this.name = options.name;
+	this.unicode = options.unicode > 0 ? options.unicode : 0;
+	this.unicodes = options.unicodes != null ? options.unicodes : options.unicode > 0 ? [options.unicode] : [];
+};
+opentype_Glyph.__name__ = "opentype.Glyph";
+opentype_Glyph.prototype = {
+	addUnicode: function(unicode) {
+		if(this.unicodes.length == 0) {
+			this.unicode = unicode;
+		}
+		this.unicodes.push(unicode);
+	}
+	,__class__: opentype_Glyph
+};
+var opentype_GlyphOptions = function(name,index,unicode,advanceWidth,path) {
+	this.name = name;
+	this.index = index;
+	this.unicode = unicode;
+	this.advanceWidth = advanceWidth;
+	this.path = path;
+};
+opentype_GlyphOptions.__name__ = "opentype.GlyphOptions";
+opentype_GlyphOptions.prototype = {
+	__class__: opentype_GlyphOptions
+};
+var opentype_GlyphWrapper = function(glyph,loader) {
+	this.glyph = glyph;
+	this.loader = loader;
+};
+opentype_GlyphWrapper.__name__ = "opentype.GlyphWrapper";
+opentype_GlyphWrapper.prototype = {
+	__class__: opentype_GlyphWrapper
+};
+var opentype_GlyphSet = function(font,glyphs) {
+	this.glyphs = new haxe_ds_IntMap();
+	this.glyphLoaders = new haxe_ds_IntMap();
+	if(glyphs != null) {
+		var _g = 0;
+		var _g1 = glyphs.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var glyph = glyphs[i];
+			var this1 = this.glyphs;
+			var v = new opentype_GlyphWrapper(glyph,null);
+			this1.h[i] = v;
+		}
+	}
+};
+opentype_GlyphSet.__name__ = "opentype.GlyphSet";
+opentype_GlyphSet.glyphLoader = function(font,index) {
+	return function() {
+		return new opentype_Glyph(new opentype_GlyphOptions(null,index,null,null,null));
+	};
+};
+opentype_GlyphSet.ttfGlyphLoader = function(font,index,data,position) {
+	return function() {
+		var glyph = new opentype_Glyph(new opentype_GlyphOptions(null,index,null,null,null));
+		return glyph;
+	};
+};
+opentype_GlyphSet.cffGlyphLoader = function(font,index,parseCFFCharstring,charstring) {
+	return function() {
+		var glyph = new opentype_Glyph(new opentype_GlyphOptions(null,index,null,null,null));
+		return glyph;
+	};
+};
+opentype_GlyphSet.prototype = {
+	addGlyph: function(index,glyph) {
+		var this1 = this.glyphs;
+		var v = new opentype_GlyphWrapper(glyph,null);
+		this1.h[index] = v;
+		this.length++;
+	}
+	,addGlyphLoader: function(index,loader) {
+		var this1 = this.glyphs;
+		var v = new opentype_GlyphWrapper(null,loader);
+		this1.h[index] = v;
+		this.length++;
+	}
+	,get: function(index) {
+		if(this.glyphs.h[index].glyph == null) {
+			this.glyphs.h[index].glyph = this.glyphs.h[index].loader();
+		}
+		return this.glyphs.h[index].glyph;
+	}
+	,__class__: opentype_GlyphSet
+};
+var opentype_Layout = function(font,tableName) {
+	this.font = font;
+	this.tableName = tableName;
+};
+opentype_Layout.__name__ = "opentype.Layout";
+opentype_Layout.prototype = {
+	Layout: function(font,tableName) {
+		this.font = font;
+		this.tableName = tableName;
+	}
+	,searchTag: function(arr,tag) {
+		var imin = 0;
+		var imax = arr.length - 1;
+		while(imin <= imax) {
+			var imid = imin + imax >>> 1;
+			var val = arr[imid].tag;
+			if(val == tag) {
+				return imid;
+			} else if(val < tag) {
+				imin = imid + 1;
+			} else {
+				imax = imid - 1;
+			}
+		}
+		return -imin - 1;
+	}
+	,binSearch: function(arr,value) {
+		var imin = 0;
+		var imax = arr.length - 1;
+		while(imin <= imax) {
+			var imid = imin + imax >>> 1;
+			var val = arr[imid];
+			if(val == value) {
+				return imid;
+			} else if(val < value) {
+				imin = imid + 1;
+			} else {
+				imax = imid - 1;
+			}
+		}
+		return -imin - 1;
+	}
+	,searchRange: function(ranges,value) {
+		var range;
+		var imin = 0;
+		var imax = ranges.length - 1;
+		while(imin <= imax) {
+			var imid = imin + imax >>> 1;
+			range = ranges[imid];
+			var start = range.start;
+			if(start == value) {
+				return range;
+			} else if(start < value) {
+				imin = imid + 1;
+			} else {
+				imax = imid - 1;
+			}
+		}
+		if(imin > 0) {
+			range = ranges[imin - 1];
+			if(value > range.end) {
+				return null;
+			}
+			return range;
+		}
+		return null;
+	}
+	,getTable: function(create) {
+		if(create == null) {
+			create = false;
+		}
+		var key = this.tableName;
+		var _this = this.font.tables.layoutTables;
+		if(__map_reserved[key] != null ? _this.existsReserved(key) : _this.h.hasOwnProperty(key)) {
+			var key1 = this.tableName;
+			var _this1 = this.font.tables.layoutTables;
+			if(__map_reserved[key1] != null) {
+				return _this1.getReserved(key1);
+			} else {
+				return _this1.h[key1];
+			}
+		} else if(create) {
+			var this1 = this.font.tables.layoutTables;
+			var k = this.tableName;
+			var v = this.createDefaultTable();
+			var _this2 = this1;
+			if(__map_reserved[k] != null) {
+				_this2.setReserved(k,v);
+			} else {
+				_this2.h[k] = v;
+			}
+			return v;
+		} else {
+			return null;
+		}
+	}
+	,getScriptNames: function() {
+		var layout = this.getTable();
+		if(layout != null) {
+			return [];
+		}
+		var _this = layout.scripts;
+		var result = new Array(_this.length);
+		var _g = 0;
+		var _g1 = _this.length;
+		while(_g < _g1) {
+			var i = _g++;
+			result[i] = _this[i].tag;
+		}
+		return result;
+	}
+	,getDefaultScriptName: function() {
+		var layout = this.getTable();
+		if(layout == null) {
+			return "";
+		}
+		var hasLatn = false;
+		var _g = 0;
+		var _g1 = layout.scripts.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var name = layout.scripts[i].tag;
+			if(name == "DFLT") {
+				return name;
+			}
+			if(name == "latn") {
+				hasLatn = true;
+			}
+		}
+		if(hasLatn) {
+			return "latn";
+		} else {
+			return "";
+		}
+	}
+	,getScriptTable: function(script,create) {
+		if(create == null) {
+			create = false;
+		}
+		var layout = this.getTable(create);
+		if(layout != null) {
+			script = script != null ? script : "DFLT";
+			var scripts = layout.scripts;
+			var pos = this.searchTag(layout.scripts,script);
+			if(pos >= 0) {
+				return scripts[pos].script;
+			} else if(create) {
+				var scr = new opentype_tables_ScriptRecord(script,new opentype_tables_Script(new opentype_tables_LangSys(0,65535,[]),[]));
+				var _pos = -1 - pos;
+				var a = scripts.slice(0,_pos);
+				a.push(scr);
+				layout.scripts = a.concat(scripts.slice(_pos));
+				return scr.script;
+			}
+		}
+		return null;
+	}
+	,getLangSysTable: function(script,language,create) {
+		var scriptTable = this.getScriptTable(script,create);
+		if(scriptTable != null) {
+			if(language == null || language == "dflt" || language == "DFLT") {
+				return scriptTable.defaultLangSys;
+			}
+			var pos = this.searchTag(scriptTable.langSysRecords,language);
+			if(pos >= 0) {
+				return scriptTable.langSysRecords[pos].langSys;
+			} else if(create) {
+				var langSysRecord = new opentype_tables_LangSysRecord(language,new opentype_tables_LangSys(0,65535,[]));
+				throw new js__$Boot_HaxeError("Fix uncommented line below");
+			}
+		}
+		return null;
+	}
+	,getFeatureTable: function(script,language,feature,create) {
+		var langSysTable = this.getLangSysTable(script,language,create);
+		if(langSysTable != null) {
+			var featureRecord;
+			var featIndexes = langSysTable.featureIndexes;
+			var key = this.tableName;
+			var _this = this.font.tables.layoutTables;
+			var allFeatures = (__map_reserved[key] != null ? _this.getReserved(key) : _this.h[key]).features;
+			var _g = 0;
+			var _g1 = featIndexes.length;
+			while(_g < _g1) {
+				var i = _g++;
+				featureRecord = allFeatures[featIndexes[i]];
+				if(featureRecord.tag == feature) {
+					return featureRecord.feature;
+				}
+			}
+			if(create) {
+				var index = allFeatures.length;
+				opentype_Check.assert(index == 0 || feature >= allFeatures[index - 1].tag,"Features must be added in alphabetical order.");
+				featureRecord = new opentype_tables_FeatureTable(feature,new opentype_tables_Feature(0,[]));
+				allFeatures.push(featureRecord);
+				featIndexes.push(index);
+				return featureRecord.feature;
+			}
+		}
+		return null;
+	}
+	,getLookupTables: function(script,language,feature,lookupType,create) {
+		var featureTable = this.getFeatureTable(script,language,feature,create);
+		var tables = [];
+		if(featureTable != null) {
+			var lookupTable;
+			var lookupListIndexes = featureTable.lookupListIndexes;
+			var key = this.tableName;
+			var _this = this.font.tables.layoutTables;
+			var allLookups = (__map_reserved[key] != null ? _this.getReserved(key) : _this.h[key]).lookups;
+			var _g = 0;
+			var _g1 = lookupListIndexes.length;
+			while(_g < _g1) {
+				var i = _g++;
+				lookupTable = allLookups[lookupListIndexes[i]];
+				if(lookupTable.lookupType == lookupType) {
+					tables.push(lookupTable);
+				}
+			}
+			if(tables.length == 0 && create) {
+				lookupTable = new opentype_tables_LookupTable(lookupType,0,[],null);
+				var index = allLookups.length;
+				allLookups.push(lookupTable);
+				lookupListIndexes.push(index);
+				return [lookupTable];
+			}
+		}
+		return tables;
+	}
+	,getGlyphClass: function(classDefTable,glyphIndex) {
+		switch(classDefTable.format) {
+		case 1:
+			if(classDefTable.startGlyph <= glyphIndex && glyphIndex < classDefTable.startGlyph + classDefTable.classes.length) {
+				return classDefTable.classes[glyphIndex - classDefTable.startGlyph];
+			}
+			return 0;
+		case 2:
+			var range = this.searchRange(classDefTable.ranges,glyphIndex);
+			if(range != null) {
+				return range.value;
+			} else {
+				return 0;
+			}
+			break;
+		}
+		return -1;
+	}
+	,getCoverageIndex: function(coverageTable,glyphIndex) {
+		switch(coverageTable.format) {
+		case 1:
+			var index = this.binSearch(coverageTable.glyphs,glyphIndex);
+			if(index >= 0) {
+				return index;
+			} else {
+				return -1;
+			}
+			break;
+		case 2:
+			var range = this.searchRange(coverageTable.ranges,glyphIndex);
+			if(range != null) {
+				return range.value + glyphIndex - range.start;
+			} else {
+				return -1;
+			}
+			break;
+		default:
+			return null;
+		}
+	}
+	,__class__: opentype_Layout
 };
 var opentype_OpenType = function() { };
 opentype_OpenType.__name__ = "opentype.OpenType";
@@ -3311,17 +4166,15 @@ opentype_OpenType.uncompressTable = function(data,tableEntry) {
 		var src = js_node_buffer_Buffer.from(data1.buffer,data1.byteOffset,data.length).slice(tableEntry.offset + 2);
 		var data2 = dest.b;
 		var dst = js_node_buffer_Buffer.from(data2.buffer,data2.byteOffset,dest.length);
-		var res = js_node_Zlib.inflateRawSync(src,{ info : true});
-		var engine = res.engine;
-		var res1 = res.buffer;
-		dst.set(res1,0);
+		var res = js_node_Zlib.inflateRawSync(src,{ info : true}).buffer;
+		dst.set(res,0);
 		return new opentype_Table(dest,0);
 	} else {
 		return new opentype_Table(data,tableEntry.offset);
 	}
 };
 opentype_OpenType.parse = function(data) {
-	var indexToLocFormat;
+	var indexToLocFormat = -1;
 	var ltagTable;
 	var font = new opentype_Font();
 	var bi = new haxe_io_BytesInput(data);
@@ -3360,13 +4213,13 @@ opentype_OpenType.parse = function(data) {
 	}
 	var cffTableEntry;
 	var fvarTableEntry;
-	var glyfTableEntry;
+	var glyfTableEntry = null;
 	var gdefTableEntry;
-	var gposTableEntry;
+	var gposTableEntry = null;
 	var gsubTableEntry;
-	var hmtxTableEntry;
-	var kernTableEntry;
-	var locaTableEntry;
+	var hmtxTableEntry = null;
+	var kernTableEntry = null;
+	var locaTableEntry = null;
 	var nameTableEntry;
 	var metaTableEntry;
 	var p;
@@ -3376,14 +4229,75 @@ opentype_OpenType.parse = function(data) {
 		var i = _g++;
 		var tableEntry = tableEntries[i];
 		var table;
-		if(tableEntry.tag == "GPOS") {
-			var gposTable = opentype_OpenType.uncompressTable(data,tableEntry);
-			font.tables.gpos = opentype_tables_Gpos.parse(gposTable.data,gposTable.offset);
+		switch(tableEntry.tag) {
+		case "GPOS":
+			gposTableEntry = tableEntry;
+			break;
+		case "cmap":
+			table = opentype_OpenType.uncompressTable(data,tableEntry);
+			font.tables.cmap = opentype_tables_Cmap.parse(table.data,table.offset);
+			font.encoding = new opentype_CmapEncoding(font.tables.cmap);
+			break;
+		case "glyf":
+			glyfTableEntry = tableEntry;
+			break;
+		case "head":
+			table = opentype_OpenType.uncompressTable(data,tableEntry);
+			font.tables.head = opentype_tables_Head.parse(table.data,table.offset);
+			font.unitsPerEm = font.tables.head.unitsPerEm;
+			indexToLocFormat = font.tables.head.indexToLocFormat;
+			break;
+		case "hmtx":
+			hmtxTableEntry = tableEntry;
+			break;
+		case "kern":
+			kernTableEntry = tableEntry;
+			break;
+		case "loca":
+			locaTableEntry = tableEntry;
+			break;
+		case "maxp":
+			table = opentype_OpenType.uncompressTable(data,tableEntry);
+			font.tables.maxp = opentype_tables_Maxp.parse(table.data,table.offset);
+			font.numGlyphs = font.tables.maxp.numGlyphs;
+			break;
 		}
+	}
+	if(glyfTableEntry != null && locaTableEntry != null) {
+		var shortVersion = indexToLocFormat == 0;
+		var locaTable = opentype_OpenType.uncompressTable(data,locaTableEntry);
+		var loca = opentype_tables_Loca.parse(locaTable.data,locaTable.offset,font.numGlyphs,shortVersion);
+		var glyfTable = opentype_OpenType.uncompressTable(data,glyfTableEntry);
+		font.glyphs = opentype_tables_GlyphTable.parse(glyfTable.data,glyfTable.offset,loca.glyphOffsets,font,false);
+	}
+	var hmtxTable = opentype_OpenType.uncompressTable(data,hmtxTableEntry);
+	opentype_tables_Hmtx.parse(hmtxTable.data,hmtxTable.offset,font);
+	opentype_Encoding.addGlyphNames(font,false);
+	if(kernTableEntry != null) {
+		var kernTable = opentype_OpenType.uncompressTable(data,kernTableEntry);
+		font.kerningPairs = opentype_tables_Kern.parse(kernTable.data,kernTable.offset).pairs;
+	} else {
+		font.kerningPairs = null;
+	}
+	if(gposTableEntry != null) {
+		var gposTable = opentype_OpenType.uncompressTable(data,gposTableEntry);
+		font.tables.set_gpos(opentype_tables_Gpos.parse(gposTable.data,gposTable.offset));
+		font.position.init();
 	}
 	return font;
 };
+var opentype_Pair = function(value1,value2) {
+	this.value1 = value1;
+	this.value2 = value2;
+};
+opentype_Pair.__name__ = "opentype.Pair";
+opentype_Pair.prototype = {
+	__class__: opentype_Pair
+};
 var opentype_Parser = function(data,offset) {
+	if(offset == null) {
+		offset = 0;
+	}
 	this.data = data;
 	this.offset = offset;
 	this.relativeOffset = 0;
@@ -3398,11 +4312,28 @@ opentype_Parser.char = function(p) {
 opentype_Parser.uShort = function(p) {
 	return p.parseUShort();
 };
-opentype_Parser.list = function(parser,count,itemCallback) {
-	return parser.parseList(count,itemCallback);
+opentype_Parser.short = function(p) {
+	return p.parseShort();
+};
+opentype_Parser.tag = function(p) {
+	return p.parseTag();
+};
+opentype_Parser.uShortList = function(p) {
+	return p.parseUShortList();
+};
+opentype_Parser.recordListOfLength = function(p,count,recordDescription) {
+	return p.parseRecordListOfLength(count,recordDescription);
+};
+opentype_Parser.recordList = function(recordDescription) {
+	return function(p) {
+		return p.parseRecordList(recordDescription);
+	};
 };
 opentype_Parser.coverage = function(parser) {
 	return parser.parseCoverage();
+};
+opentype_Parser.classDef = function(p) {
+	return p.parseClassDef();
 };
 opentype_Parser.getTag = function(data,offset) {
 	var tag = "";
@@ -3425,10 +4356,7 @@ opentype_Parser.getTag = function(data,offset) {
 	return tag;
 };
 opentype_Parser.prototype = {
-	parserFromOffset: function(offset) {
-		return new opentype_Parser(this.data,this.offset + offset);
-	}
-	,parseByte: function() {
+	parseByte: function() {
 		var position = this.offset + this.relativeOffset++;
 		if(position == null) {
 			position = 0;
@@ -3463,6 +4391,59 @@ opentype_Parser.prototype = {
 		this.relativeOffset += 2;
 		return v;
 	}
+	,parseShort: function() {
+		var bytes = this.data;
+		var position = this.offset + this.relativeOffset;
+		var position1 = position;
+		if(position1 == null) {
+			position1 = 0;
+		}
+		var ch1 = bytes.b[position1];
+		var position2 = position + 1;
+		if(position2 == null) {
+			position2 = 0;
+		}
+		var ch2 = bytes.b[position2];
+		var n = ch2 | ch1 << 8;
+		var v = (n & 32768) != 0 ? n - 65536 : n;
+		this.relativeOffset += 2;
+		return v;
+	}
+	,parseULong: function() {
+		var p = this.data;
+		var position = this.offset + this.relativeOffset;
+		if(position == null) {
+			position = 0;
+		}
+		var position1 = position;
+		if(position1 == null) {
+			position1 = 0;
+		}
+		var ch1 = p.b[position1];
+		var position2 = position + 1;
+		if(position2 == null) {
+			position2 = 0;
+		}
+		var ch2 = p.b[position2];
+		var position3 = position + 2;
+		if(position3 == null) {
+			position3 = 0;
+		}
+		var ch3 = p.b[position3];
+		var position4 = position + 3;
+		if(position4 == null) {
+			position4 = 0;
+		}
+		var ch4 = p.b[position4];
+		var v = ch4 | ch3 << 8 | ch2 << 16 | ch1 << 24;
+		this.relativeOffset += 4;
+		return v;
+	}
+	,parseFixed: function() {
+		var v = opentype_BytesHelper.getFixed(this.data,this.offset + this.relativeOffset);
+		this.relativeOffset += 4;
+		return v;
+	}
 	,parseString: function(length) {
 		var offset = this.offset + this.relativeOffset;
 		var string = "";
@@ -3483,7 +4464,41 @@ opentype_Parser.prototype = {
 	,parseTag: function() {
 		return this.parseString(4);
 	}
+	,parseLongDateTime: function() {
+		var p = this.data;
+		var position = this.offset + this.relativeOffset + 4;
+		if(position == null) {
+			position = 0;
+		}
+		var position1 = position;
+		if(position1 == null) {
+			position1 = 0;
+		}
+		var ch1 = p.b[position1];
+		var position2 = position + 1;
+		if(position2 == null) {
+			position2 = 0;
+		}
+		var ch2 = p.b[position2];
+		var position3 = position + 2;
+		if(position3 == null) {
+			position3 = 0;
+		}
+		var ch3 = p.b[position3];
+		var position4 = position + 3;
+		if(position4 == null) {
+			position4 = 0;
+		}
+		var ch4 = p.b[position4];
+		var v = ch4 | ch3 << 8 | ch2 << 16 | ch1 << 24;
+		v -= 2082844800;
+		this.relativeOffset += 8;
+		return v;
+	}
 	,parseVersion: function(minorBase) {
+		if(minorBase == null) {
+			minorBase = 4096;
+		}
 		var bytes = this.data;
 		var position = this.offset + this.relativeOffset;
 		if(position == null) {
@@ -3501,15 +4516,30 @@ opentype_Parser.prototype = {
 		var second1 = bytes1.b[position1 + 1];
 		var minor = first1 * 256 + second1;
 		this.relativeOffset += 4;
-		if(minorBase == null) {
-			minorBase = 4096;
-		}
-		return major + minor / minorBase / 10 | 0;
+		return major + minor / minorBase / 10;
 	}
-	,parseUShortList: function(count) {
-		if(count == null) {
-			count = this.parseUShort();
+	,skip: function(offset,amount) {
+		if(amount == null) {
+			amount = 1;
 		}
+		this.relativeOffset += offset * amount;
+	}
+	,skipULong: function(amount) {
+		if(amount == null) {
+			amount = 1;
+		}
+		this.skip(opentype_Parser.typeOffsetULong,amount);
+	}
+	,skipUShort: function(amount) {
+		if(amount == null) {
+			amount = 1;
+		}
+		this.skip(opentype_Parser.typeOffsetUShort,amount);
+	}
+	,parseUShortList: function() {
+		return this.parseUShortListOfLength(this.parseUShort());
+	}
+	,parseUShortListOfLength: function(count) {
 		var _g = [];
 		var _g1 = 0;
 		var _g2 = count;
@@ -3519,23 +4549,20 @@ opentype_Parser.prototype = {
 		}
 		return _g;
 	}
-	,parseList: function(count,itemCallback) {
-		if(count == null) {
-			count = this.parseUShort();
-		}
+	,parseList: function(parseFn) {
+		return this.parseListOfLength(this.parseUShort(),parseFn);
+	}
+	,parseListOfLength: function(count,parseFn) {
 		var _g = [];
 		var _g1 = 0;
 		var _g2 = count;
 		while(_g1 < _g2) {
 			var i = _g1++;
-			_g.push(itemCallback());
+			_g.push(parseFn());
 		}
 		return _g;
 	}
-	,parseRecordList: function(count,recordDescription) {
-		if(count == null) {
-			count = this.parseUShort();
-		}
+	,parseRecordListOfLength: function(count,recordDescription) {
 		var records = [];
 		records.length = count;
 		var _g = 0;
@@ -3547,14 +4574,17 @@ opentype_Parser.prototype = {
 			while(_g2 < recordDescription.length) {
 				var f = recordDescription[_g2];
 				++_g2;
-				var rec = new opentype_Pair(f.name,f.parseFn());
+				var rec = new opentype_Record(f.name,f.parseFn(this));
 				pairs.push(rec);
 			}
 			records[i] = pairs;
 		}
 		return records;
 	}
-	,parseRecordListOfSameType: function(count,names,valueParser) {
+	,parseRecordList: function(recordDescription) {
+		return this.parseRecordListOfLength(this.parseUShort(),recordDescription);
+	}
+	,parseRecordListOfSameType: function(names,valueParser) {
 		var _g = [];
 		var _g1 = 0;
 		while(_g1 < names.length) {
@@ -3562,12 +4592,58 @@ opentype_Parser.prototype = {
 			++_g1;
 			_g.push(new opentype_RecordDescription(name,valueParser));
 		}
-		return this.parseRecordList(count,_g);
+		return this.parseRecordList(_g);
+	}
+	,parseValueRecord: function() {
+		return this.parseValueRecordOfFormat(this.parseUShort());
+	}
+	,parseValueRecordOfFormat: function(valueFormat) {
+		if(valueFormat == 0) {
+			return null;
+		}
+		var valueRecord = new opentype_tables_ValueRecord();
+		if((valueFormat & 1) != 0) {
+			valueRecord.xPlacement = this.parseShort();
+		}
+		if((valueFormat & 2) != 0) {
+			valueRecord.yPlacement = this.parseShort();
+		}
+		if((valueFormat & 4) != 0) {
+			valueRecord.xAdvance = this.parseShort();
+		}
+		if((valueFormat & 8) != 0) {
+			valueRecord.yAdvance = this.parseShort();
+		}
+		if((valueFormat & 16) != 0) {
+			this.parseShort();
+		}
+		if((valueFormat & 32) != 0) {
+			this.parseShort();
+		}
+		if((valueFormat & 64) != 0) {
+			this.parseShort();
+		}
+		if((valueFormat & 128) != 0) {
+			this.parseShort();
+		}
+		return valueRecord;
+	}
+	,parseValueRecordList: function() {
+		var valueFormat = this.parseUShort();
+		var valueCount = this.parseUShort();
+		var _g = [];
+		var _g1 = 0;
+		var _g2 = valueCount;
+		while(_g1 < _g2) {
+			var i = _g1++;
+			_g.push(this.parseValueRecordOfFormat(valueFormat));
+		}
+		return _g;
 	}
 	,parsePointer: function() {
-		var structOffset = this.parseUShort();
-		if(structOffset > 0) {
-			return new opentype_Parser(this.data,this.offset + structOffset);
+		var pointerOffset = this.parseUShort();
+		if(pointerOffset > 0) {
+			return new opentype_Parser(this.data,this.offset + pointerOffset);
 		}
 		return null;
 	}
@@ -3624,7 +4700,7 @@ opentype_Parser.prototype = {
 		var format = this.parseUShort();
 		var count = this.parseUShort();
 		if(format == 1) {
-			return new opentype_tables_subtables_Coverage(1,[],this.parseUShortList(count));
+			return new opentype_tables_subtables_Coverage(1,[],this.parseUShortListOfLength(count));
 		} else if(format == 2) {
 			var _g = [];
 			var _g1 = 0;
@@ -3643,56 +4719,99 @@ opentype_Parser.prototype = {
 		if(format == 1) {
 			return new opentype_tables_subtables_ClassDefinition(1,this.parseUShort(),this.parseUShortList(),null);
 		} else if(format == 2) {
-			var recordList = this.parseRecordListOfSameType(null,["start","end","classId"],$bind(this,this.parseUShort));
+			var recordList = this.parseRecordListOfSameType(["start","end","classId"],opentype_Parser.uShort);
 			var _g = [];
 			var _g1 = 0;
 			while(_g1 < recordList.length) {
 				var r = recordList[_g1];
 				++_g1;
-				_g.push(new opentype_tables_subtables_ClassRangeRecord(r[0].value,r[1].value,r[2].value));
+				_g.push(new opentype_tables_subtables_RangeRecord(r[0].value,r[1].value,r[2].value));
 			}
 			return new opentype_tables_subtables_ClassDefinition(2,null,null,_g);
 		}
 		throw new js__$Boot_HaxeError("" + StringTools.hex(startOffset) + ": ClassDef format must be 1 or 2.");
 	}
-	,parseLookupList: function(lookupTableParsers) {
+	,parseScriptList: function() {
 		var p = this.parsePointer();
-		var offSets = p.parseList(null,$bind(p,p.parseUShort));
-		var res = [];
-		var _g = 0;
-		while(_g < offSets.length) {
-			var o = offSets[_g];
-			++_g;
-			var po = p.parserFromOffset(o);
-			var lookupType = p.parseUShort();
-			opentype_Check.assert(1 <= lookupType && lookupType <= 9,"GPOS/GSUB lookup type " + lookupType + " unknown.");
-			var lookupFlag = p.parseUShort();
-			var subTablesOffSets = p.parseList(null,$bind(p,p.parseUShort));
-			var subTables = [];
-			var _g1 = 0;
-			while(_g1 < subTablesOffSets.length) {
-				var st = subTablesOffSets[_g1];
-				++_g1;
-				var subtableParser = po.parserFromOffset(st);
-				subTables.push(lookupTableParsers[lookupType](subtableParser));
-			}
-			res.push(new opentype_tables_LookupTable(lookupType,lookupFlag,subTables));
-		}
-		if(res != null) {
-			return res;
+		if(p != null) {
+			return p.parseElements(function(p1) {
+				return new opentype_tables_ScriptRecord(p1.parseTag(),p1.parseAtPointer(function(p2) {
+					return new opentype_tables_Script(p2.parseAtPointer(function(p3) {
+						return new opentype_tables_LangSys(p3.parseUShort(),p3.parseUShort(),p3.parseUShortList());
+					}),p2.parseElements(function(p4) {
+						return new opentype_tables_LangSysRecord(p4.parseTag(),p4.parseAtPointer(function(p5) {
+							return new opentype_tables_LangSys(p5.parseUShort(),p5.parseUShort(),p5.parseUShortList());
+						}));
+					}));
+				}));
+			});
 		} else {
 			return [];
 		}
 	}
+	,parseElements: function(parseFn) {
+		return this.parseNElements(this.parseUShort(),parseFn);
+	}
+	,parseNElements: function(count,parseFn) {
+		var _g = [];
+		var _g1 = 0;
+		var _g2 = count;
+		while(_g1 < _g2) {
+			var c = _g1++;
+			_g.push(parseFn(this));
+		}
+		return _g;
+	}
+	,parseFeatureList: function() {
+		var p = this.parsePointer();
+		if(p != null) {
+			return p.parseElements($bind(this,this.featureTable));
+		} else {
+			return [];
+		}
+	}
+	,featureTable: function(p) {
+		return new opentype_tables_FeatureTable(p.parseTag(),p.parseAtPointer($bind(this,this.feature)));
+	}
+	,feature: function(p) {
+		return new opentype_tables_Feature(p.parseUShort(),p.parseUShortList());
+	}
+	,parseAtPointer: function(parseFn) {
+		var p = this.parsePointer();
+		if(p != null) {
+			return parseFn(p);
+		} else {
+			return null;
+		}
+	}
+	,parseLookupList: function(lookupTableParsers) {
+		var p = this.parsePointer();
+		if(p == null) {
+			return [];
+		}
+		return p.parseList(function() {
+			return p.parseAtPointer(function(p1) {
+				var lookupType = p1.parseUShort();
+				opentype_Check.assert(1 <= lookupType && lookupType <= 9,"GPOS/GSUB lookup type " + lookupType + " unknown.");
+				var lookupFlag = p1.parseUShort();
+				var useMarkFilteringSet = lookupFlag & 16;
+				var tmp = p1.parseList(function() {
+					return p1.parseAtPointer(lookupTableParsers[lookupType]);
+				});
+				var tmp1 = useMarkFilteringSet > 0 ? p1.parseUShort() : useMarkFilteringSet;
+				return new opentype_tables_LookupTable(lookupType,lookupFlag,tmp,tmp1);
+			});
+		});
+	}
 	,__class__: opentype_Parser
 };
-var opentype_Pair = function(name,value) {
+var opentype_Record = function(name,value) {
 	this.name = name;
 	this.value = value;
 };
-opentype_Pair.__name__ = "opentype.Pair";
-opentype_Pair.prototype = {
-	__class__: opentype_Pair
+opentype_Record.__name__ = "opentype.Record";
+opentype_Record.prototype = {
+	__class__: opentype_Record
 };
 var opentype_RecordDescription = function(name,parseFn) {
 	this.name = name;
@@ -3702,6 +4821,83 @@ opentype_RecordDescription.__name__ = "opentype.RecordDescription";
 opentype_RecordDescription.prototype = {
 	__class__: opentype_RecordDescription
 };
+var opentype_Path = function() {
+};
+opentype_Path.__name__ = "opentype.Path";
+opentype_Path.prototype = {
+	__class__: opentype_Path
+};
+var opentype_Position = function(font) {
+	opentype_Layout.call(this,font,"gpos");
+};
+opentype_Position.__name__ = "opentype.Position";
+opentype_Position.__super__ = opentype_Layout;
+opentype_Position.prototype = $extend(opentype_Layout.prototype,{
+	hasKerningTables: function() {
+		return this.defaultKerningTables != null;
+	}
+	,init: function() {
+		var script = this.getDefaultScriptName();
+		this.defaultKerningTables = this.getKerningTables(script,null);
+	}
+	,getKerningValue: function(leftIndex,rightIndex) {
+		return this.getKerningValueForLookups(this.defaultKerningTables,leftIndex,rightIndex);
+	}
+	,getKerningValueForLookups: function(kerningLookups,leftIndex,rightIndex) {
+		var _g = 0;
+		var _g1 = kerningLookups.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var subtables = kerningLookups[i].subTables;
+			var _g2 = 0;
+			var _g11 = subtables.length;
+			_hx_loop2: while(_g2 < _g11) {
+				var j = _g2++;
+				var subtable = subtables[j];
+				var covIndex = this.getCoverageIndex(subtable.coverage,leftIndex);
+				if(covIndex < 0) {
+					continue;
+				}
+				switch(subtable.posFormat) {
+				case 1:
+					var pairSet = subtable.pairSets[covIndex];
+					var _g3 = 0;
+					var _g12 = pairSet.length;
+					while(_g3 < _g12) {
+						var k = _g3++;
+						var pair = pairSet[k];
+						if(pair.secondGlyph == rightIndex) {
+							if(pair.value1 != null) {
+								return pair.value1.xAdvance;
+							} else {
+								return 0;
+							}
+						}
+					}
+					break _hx_loop2;
+				case 2:
+					var class1 = this.getGlyphClass(subtable.classDef1,leftIndex);
+					var class2 = this.getGlyphClass(subtable.classDef2,rightIndex);
+					var pair1 = subtable.classRecords[class1][class2];
+					if(pair1.value1 != null) {
+						return pair1.value1.xAdvance;
+					} else {
+						return 0;
+					}
+					break;
+				}
+			}
+		}
+		return 0;
+	}
+	,getKerningTables: function(script,language) {
+		if(this.font.tables.gpos != null) {
+			return this.getLookupTables(script,language,"kern",2,false);
+		}
+		return null;
+	}
+	,__class__: opentype_Position
+});
 var opentype_Table = function(data,offset) {
 	this.data = data;
 	this.offset = offset;
@@ -3723,17 +4919,304 @@ opentype_TableEntry.prototype = {
 	__class__: opentype_TableEntry
 };
 var opentype_tables_Cmap = function() {
+	this.groupCount = 0;
+	this.format = 0;
+	this.numTables = 0;
+	this.version = -1;
+	this.glyphIndexMap = new haxe_ds_IntMap();
 };
 opentype_tables_Cmap.__name__ = "opentype.tables.Cmap";
+opentype_tables_Cmap.parse = function(data,position) {
+	if(position == null) {
+		position = 0;
+	}
+	return opentype_tables_Cmap.parseCmapTable(data,position);
+};
+opentype_tables_Cmap.parseCmapTableFormat12 = function(cmap,p) {
+	p.parseUShort();
+	cmap.length = p.parseULong();
+	cmap.language = p.parseULong();
+	var groupCount = p.parseULong();
+	cmap.groupCount = groupCount;
+	cmap.glyphIndexMap = new haxe_ds_IntMap();
+	var _g = 0;
+	var _g1 = groupCount;
+	while(_g < _g1) {
+		var i = _g++;
+		var startCharCode = p.parseULong();
+		var endCharCode = p.parseULong();
+		var startGlyphId = p.parseULong();
+		var _g2 = startCharCode;
+		var _g11 = endCharCode;
+		while(_g2 < _g11) {
+			var c = _g2++;
+			cmap.glyphIndexMap.h[c] = startGlyphId;
+			++startGlyphId;
+		}
+	}
+};
+opentype_tables_Cmap.parseCmapTableFormat4 = function(cmap,p,data,start,offset) {
+	cmap.length = p.parseUShort();
+	cmap.language = p.parseUShort();
+	var segCount = p.parseUShort() >> 1;
+	cmap.segCount = segCount;
+	p.skipUShort(3);
+	cmap.glyphIndexMap = new haxe_ds_IntMap();
+	var endCountParser = new opentype_Parser(data,start + offset + 14);
+	var startCountParser = new opentype_Parser(data,start + offset + 16 + segCount * 2);
+	var idDeltaParser = new opentype_Parser(data,start + offset + 16 + segCount * 4);
+	var idRangeOffsetParser = new opentype_Parser(data,start + offset + 16 + segCount * 6);
+	var glyphIndexOffset = start + offset + 16 + segCount * 8;
+	var _g = 0;
+	var _g1 = segCount - 1;
+	while(_g < _g1) {
+		var i = _g++;
+		var glyphIndex;
+		var endCount = endCountParser.parseUShort();
+		var startCount = startCountParser.parseUShort();
+		var idDelta = idDeltaParser.parseShort();
+		var idRangeOffset = idRangeOffsetParser.parseUShort();
+		var _g2 = startCount;
+		var _g11 = endCount + 1;
+		while(_g2 < _g11) {
+			var c = _g2++;
+			if(idRangeOffset != 0) {
+				glyphIndexOffset = idRangeOffsetParser.offset + idRangeOffsetParser.relativeOffset - 2;
+				glyphIndexOffset += idRangeOffset;
+				var position = glyphIndexOffset += (c - startCount) * 2;
+				if(position == null) {
+					position = 0;
+				}
+				var first = data.b[position];
+				var second = data.b[position + 1];
+				glyphIndex = first * 256 + second;
+				if(glyphIndex != 0) {
+					glyphIndex = glyphIndex + idDelta & 65535;
+				}
+			} else {
+				glyphIndex = c + idDelta & 65535;
+			}
+			cmap.glyphIndexMap.h[c] = glyphIndex;
+		}
+	}
+};
+opentype_tables_Cmap.parseCmapTable = function(data,start) {
+	var cmap = new opentype_tables_Cmap();
+	var position = start;
+	if(position == null) {
+		position = 0;
+	}
+	var first = data.b[position];
+	var second = data.b[position + 1];
+	cmap.version = first * 256 + second;
+	opentype_Check.assert(cmap.version == 0,"cmap table version should be 0.");
+	var position1 = start + 2;
+	if(position1 == null) {
+		position1 = 0;
+	}
+	var first1 = data.b[position1];
+	var second1 = data.b[position1 + 1];
+	cmap.numTables = first1 * 256 + second1;
+	var offset = -1;
+	var i = cmap.numTables - 1;
+	while(i-- >= 0) {
+		var position2 = start + 4 + i * 8;
+		if(position2 == null) {
+			position2 = 0;
+		}
+		var first2 = data.b[position2];
+		var second2 = data.b[position2 + 1];
+		var platformId = first2 * 256 + second2;
+		var position3 = start + 4 + i * 8 + 2;
+		if(position3 == null) {
+			position3 = 0;
+		}
+		var first3 = data.b[position3];
+		var second3 = data.b[position3 + 1];
+		var encodingId = first3 * 256 + second3;
+		if(platformId == 3 && (encodingId == 0 || encodingId == 1 || encodingId == 10) || platformId == 0 && (encodingId == 0 || encodingId == 1 || encodingId == 2 || encodingId == 3 || encodingId == 4)) {
+			var position4 = start + 4 + i * 8 + 4;
+			if(position4 == null) {
+				position4 = 0;
+			}
+			var position5 = position4;
+			if(position5 == null) {
+				position5 = 0;
+			}
+			var ch1 = data.b[position5];
+			var position6 = position4 + 1;
+			if(position6 == null) {
+				position6 = 0;
+			}
+			var ch2 = data.b[position6];
+			var position7 = position4 + 2;
+			if(position7 == null) {
+				position7 = 0;
+			}
+			var ch3 = data.b[position7];
+			var position8 = position4 + 3;
+			if(position8 == null) {
+				position8 = 0;
+			}
+			var ch4 = data.b[position8];
+			offset = ch4 | ch3 << 8 | ch2 << 16 | ch1 << 24;
+			break;
+		}
+	}
+	if(offset == -1) {
+		throw new js__$Boot_HaxeError("No valid cmap sub-tables found.");
+	}
+	var p = new opentype_Parser(data,start + offset);
+	cmap.format = p.parseUShort();
+	if(cmap.format == 12) {
+		opentype_tables_Cmap.parseCmapTableFormat12(cmap,p);
+	} else if(cmap.format == 4) {
+		opentype_tables_Cmap.parseCmapTableFormat4(cmap,p,data,start,offset);
+	} else {
+		throw new js__$Boot_HaxeError("Only format 4 and 12 cmap tables are supported (found format " + cmap.format + ").");
+	}
+	return cmap;
+};
 opentype_tables_Cmap.prototype = {
 	__class__: opentype_tables_Cmap
 };
+var opentype_tables_FeatureTable = function(tag,feature) {
+	this.tag = tag;
+	this.feature = feature;
+};
+opentype_tables_FeatureTable.__name__ = "opentype.tables.FeatureTable";
+opentype_tables_FeatureTable.prototype = {
+	__class__: opentype_tables_FeatureTable
+};
+var opentype_tables_Feature = function(featureParams,lookupListIndexes) {
+	this.featureParams = featureParams;
+	this.lookupListIndexes = lookupListIndexes;
+};
+opentype_tables_Feature.__name__ = "opentype.tables.Feature";
+opentype_tables_Feature.prototype = {
+	__class__: opentype_tables_Feature
+};
+var opentype_tables_GlyphTable = function() {
+};
+opentype_tables_GlyphTable.__name__ = "opentype.tables.GlyphTable";
+opentype_tables_GlyphTable.parse = function(data,position,glyphOffsets,font,lowMemory) {
+	if(position == null) {
+		position = 0;
+	}
+	var p = new opentype_Parser(data,position);
+	var glyph = new opentype_tables_GlyphTable();
+	if(lowMemory) {
+		throw new js__$Boot_HaxeError("Low memory mode not implemented");
+	} else {
+		return opentype_tables_GlyphTable.parseGlyfTableAll(data,position,glyphOffsets,font);
+	}
+};
+opentype_tables_GlyphTable.parseGlyfTableAll = function(data,start,glyphOffsets,font) {
+	var glyphs = new opentype_GlyphSet(font);
+	var _g = 0;
+	var _g1 = glyphOffsets.length - 1;
+	while(_g < _g1) {
+		var i = _g++;
+		var offset = glyphOffsets[i];
+		var nextOffset = glyphOffsets[i + 1];
+		if(offset != nextOffset) {
+			glyphs.addGlyphLoader(i,opentype_GlyphSet.ttfGlyphLoader(font,i,data,start + offset));
+		} else {
+			glyphs.addGlyphLoader(i,opentype_GlyphSet.glyphLoader(font,i));
+		}
+	}
+	return glyphs;
+};
+opentype_tables_GlyphTable.prototype = {
+	__class__: opentype_tables_GlyphTable
+};
+var opentype_tables_IScriptTable = function() { };
+opentype_tables_IScriptTable.__name__ = "opentype.tables.IScriptTable";
+opentype_tables_IScriptTable.__isInterface__ = true;
+opentype_tables_IScriptTable.prototype = {
+	__class__: opentype_tables_IScriptTable
+};
+var opentype_tables_subtables_ILookup = function() { };
+opentype_tables_subtables_ILookup.__name__ = "opentype.tables.subtables.ILookup";
+opentype_tables_subtables_ILookup.__isInterface__ = true;
+opentype_tables_subtables_ILookup.prototype = {
+	__class__: opentype_tables_subtables_ILookup
+};
+var opentype_tables_subtables_Lookup = function() {
+};
+opentype_tables_subtables_Lookup.__name__ = "opentype.tables.subtables.Lookup";
+opentype_tables_subtables_Lookup.__interfaces__ = [opentype_tables_subtables_ILookup];
+opentype_tables_subtables_Lookup.prototype = {
+	__class__: opentype_tables_subtables_Lookup
+};
+var opentype_tables_subtables_PairSet = function(secondGlyph,value1,value2) {
+	this.secondGlyph = secondGlyph;
+	this.value1 = value1;
+	this.value2 = value2;
+};
+opentype_tables_subtables_PairSet.__name__ = "opentype.tables.subtables.PairSet";
+opentype_tables_subtables_PairSet.prototype = {
+	__class__: opentype_tables_subtables_PairSet
+};
 var opentype_tables_Gpos = function() {
-	this.subtableParsers = [null,$bind(this,this.parseLookup2)];
+	this.features = [];
+	this.lookups = [];
+	this.scripts = [];
+	this.version = -1;
 };
 opentype_tables_Gpos.__name__ = "opentype.tables.Gpos";
+opentype_tables_Gpos.__interfaces__ = [opentype_tables_ILayoutTable,opentype_tables_IScriptTable];
+opentype_tables_Gpos.error = function(p) {
+	return null;
+};
 opentype_tables_Gpos.parse = function(data,position) {
+	if(position == null) {
+		position = 0;
+	}
 	return opentype_tables_Gpos.parseGposTable(data,position);
+};
+opentype_tables_Gpos.parseLookup1 = function(p) {
+	var start = p.offset + p.relativeOffset;
+	var res = new opentype_tables_subtables_Lookup();
+	res.posFormat = p.parseUShort();
+	opentype_Check.assert(res.posFormat == 1 || res.posFormat == 2,"" + StringTools.hex(start) + " : GPOS lookup type 1 format must be 1 or 2.");
+	res.coverage = p.parsePointer().parseCoverage();
+	if(res.posFormat == 1) {
+		res.value = p.parseValueRecord();
+	} else if(res.posFormat == 2) {
+		res.values = p.parseValueRecordList();
+	}
+	return res;
+};
+opentype_tables_Gpos.parseLookup2 = function(p) {
+	var start = p.offset + p.relativeOffset;
+	var res = new opentype_tables_subtables_Lookup();
+	res.posFormat = p.parseUShort();
+	opentype_Check.assert(res.posFormat == 1 || res.posFormat == 2,"" + StringTools.hex(start) + " + : GPOS lookup type 2 format must be 1 or 2.");
+	res.coverage = p.parsePointer().parseCoverage();
+	res.valueFormat1 = p.parseUShort();
+	res.valueFormat2 = p.parseUShort();
+	if(res.posFormat == 1) {
+		res.pairSets = p.parseList(function() {
+			return p.parseAtPointer(function(p1) {
+				return p1.parseList(function() {
+					return new opentype_tables_subtables_PairSet(p1.parseUShort(),p1.parseValueRecordOfFormat(res.valueFormat1),p1.parseValueRecordOfFormat(res.valueFormat2));
+				});
+			});
+		});
+	} else if(res.posFormat == 2) {
+		res.classDef1 = p.parseAtPointer(opentype_Parser.classDef);
+		res.classDef2 = p.parseAtPointer(opentype_Parser.classDef);
+		res.classCount1 = p.parseUShort();
+		res.classCount2 = p.parseUShort();
+		res.classRecords = p.parseListOfLength(res.classCount1,function() {
+			return p.parseListOfLength(res.classCount2,function() {
+				var r = new opentype_Pair(p.parseValueRecordOfFormat(res.valueFormat1),p.parseValueRecordOfFormat(res.valueFormat2));
+				return r;
+			});
+		});
+	}
+	return res;
 };
 opentype_tables_Gpos.parseGposTable = function(data,start) {
 	if(start == null) {
@@ -3746,50 +5229,317 @@ opentype_tables_Gpos.parseGposTable = function(data,start) {
 	}
 	var gpos = new opentype_tables_Gpos();
 	gpos.version = tableVersion;
+	gpos.scripts = p.parseScriptList();
+	gpos.features = p.parseFeatureList();
+	gpos.lookups = p.parseLookupList(opentype_tables_Gpos.subtableParsers);
 	var tmp = tableVersion != 1;
 	return gpos;
 };
 opentype_tables_Gpos.prototype = {
-	parseLookup2: function(p) {
-		var start = p.offset + p.relativeOffset;
-		var posFormat = p.parseUShort();
-		opentype_Check.assert(posFormat == 1 || posFormat == 2,"" + StringTools.hex(start) + " + : GPOS lookup type 2 format must be 1 or 2.");
-	}
-	,__class__: opentype_tables_Gpos
+	__class__: opentype_tables_Gpos
 };
-var opentype_tables_LookupTable = function(lookupType,lookupFlag,subTables) {
+var opentype_tables_Head = function() {
+};
+opentype_tables_Head.__name__ = "opentype.tables.Head";
+opentype_tables_Head.parse = function(data,position) {
+	if(position == null) {
+		position = 0;
+	}
+	return opentype_tables_Head.parseHeadTable(data,position);
+};
+opentype_tables_Head.parseHeadTable = function(data,start) {
+	var p = new opentype_Parser(data,start);
+	var head = new opentype_tables_Head();
+	head.version = p.parseVersion();
+	head.fontRevision = Math.round(p.parseFixed() * 1000) / 1000;
+	head.checkSumAdjustment = p.parseULong();
+	head.magicNumber = p.parseULong();
+	opentype_Check.assert(head.magicNumber == 1594834165,"Font header has wrong magic number.");
+	head.flags = p.parseUShort();
+	head.unitsPerEm = p.parseUShort();
+	head.created = p.parseLongDateTime();
+	head.modified = p.parseLongDateTime();
+	head.xMin = p.parseShort();
+	head.yMin = p.parseShort();
+	head.xMax = p.parseShort();
+	head.yMax = p.parseShort();
+	head.macStyle = p.parseUShort();
+	head.lowestRecPPEM = p.parseUShort();
+	head.fontDirectionHint = p.parseShort();
+	head.indexToLocFormat = p.parseShort();
+	head.glyphDataFormat = p.parseShort();
+	return head;
+};
+opentype_tables_Head.prototype = {
+	__class__: opentype_tables_Head
+};
+var opentype_tables_Hmtx = function() {
+};
+opentype_tables_Hmtx.__name__ = "opentype.tables.Hmtx";
+opentype_tables_Hmtx.parse = function(data,position,font) {
+	var p = new opentype_Parser(data,position);
+	var hmtx = new opentype_tables_Hmtx();
+	return hmtx;
+};
+opentype_tables_Hmtx.prototype = {
+	parseHmtxTableAll: function(data,start,font) {
+		var advanceWidth = 0;
+		var leftSideBearing = 0;
+		var p = new opentype_Parser(data,start);
+		var _g = 0;
+		var _g1 = font.numGlyphs;
+		while(_g < _g1) {
+			var i = _g++;
+			if(i < font.numMetrics) {
+				advanceWidth = p.parseUShort();
+				leftSideBearing = p.parseShort();
+			}
+			var glyph = font.glyphs.get(i);
+			glyph.advanceWidth = advanceWidth;
+			glyph.leftSideBearing = leftSideBearing;
+		}
+	}
+	,parseHmtxTableOnLowMemory: function(data,start,font) {
+		font._hmtxTableData = [];
+		var advanceWidth = 0;
+		var leftSideBearing = 0;
+		var p = new opentype_Parser(data,start);
+		var _g = 0;
+		var _g1 = font.numGlyphs;
+		while(_g < _g1) {
+			var i = _g++;
+			if(i < font.numMetrics) {
+				advanceWidth = p.parseUShort();
+				leftSideBearing = p.parseShort();
+			}
+			font._hmtxTableData[i] = new opentype_HorizontalMetrics(advanceWidth,leftSideBearing);
+		}
+	}
+	,parseHmtxTable: function(data,start,font,lowMemory) {
+		if(lowMemory) {
+			this.parseHmtxTableOnLowMemory(data,start,font);
+		} else {
+			this.parseHmtxTableAll(data,start,font);
+		}
+	}
+	,__class__: opentype_tables_Hmtx
+};
+var opentype_tables_ITag = function() { };
+opentype_tables_ITag.__name__ = "opentype.tables.ITag";
+opentype_tables_ITag.__isInterface__ = true;
+opentype_tables_ITag.prototype = {
+	__class__: opentype_tables_ITag
+};
+var opentype_tables_Kern = function() {
+	this.pairs = new haxe_ds_StringMap();
+};
+opentype_tables_Kern.__name__ = "opentype.tables.Kern";
+opentype_tables_Kern.parse = function(data,position) {
+	var kern = new opentype_tables_Kern();
+	var p = new opentype_Parser(data,position);
+	var tableVersion = p.parseUShort();
+	if(tableVersion == 0) {
+		kern.pairs = opentype_tables_Kern.parseWindowsKernTable(p);
+	} else if(tableVersion == 1) {
+		kern.pairs = opentype_tables_Kern.parseMacKernTable(p);
+	} else {
+		throw new js__$Boot_HaxeError("Unsupported kern table version (\"" + tableVersion + "\"");
+	}
+	return kern;
+};
+opentype_tables_Kern.parseWindowsKernTable = function(p) {
+	var pairs = new haxe_ds_StringMap();
+	p.skipUShort();
+	var subtableVersion = p.parseUShort();
+	opentype_Check.assert(subtableVersion == 0,"Unsupported kern sub-table version. \"" + subtableVersion + "\"");
+	p.skipUShort(2);
+	var nPairs = p.parseUShort();
+	p.skipUShort(3);
+	var _g = 0;
+	var _g1 = nPairs;
+	while(_g < _g1) {
+		var i = _g++;
+		var leftIndex = p.parseUShort();
+		var rightIndex = p.parseUShort();
+		var value = p.parseShort();
+		var key = leftIndex + "," + rightIndex;
+		if(__map_reserved[key] != null) {
+			pairs.setReserved(key,value);
+		} else {
+			pairs.h[key] = value;
+		}
+	}
+	return pairs;
+};
+opentype_tables_Kern.parseMacKernTable = function(p) {
+	var pairs = new haxe_ds_StringMap();
+	p.skipUShort();
+	var nTables = p.parseULong();
+	var tmp = nTables > 1;
+	p.skipULong();
+	var coverage = p.parseUShort();
+	var subtableVersion = coverage & 255;
+	p.skipUShort();
+	if(subtableVersion == 0) {
+		var nPairs = p.parseUShort();
+		p.skipUShort(3);
+		var _g = 0;
+		var _g1 = nPairs;
+		while(_g < _g1) {
+			var i = _g++;
+			var leftIndex = p.parseUShort();
+			var rightIndex = p.parseUShort();
+			var value = p.parseShort();
+			var key = leftIndex + "," + rightIndex;
+			if(__map_reserved[key] != null) {
+				pairs.setReserved(key,value);
+			} else {
+				pairs.h[key] = value;
+			}
+		}
+	}
+	return pairs;
+};
+opentype_tables_Kern.prototype = {
+	__class__: opentype_tables_Kern
+};
+var opentype_tables_LangSys = function(reserved,reqFeatureIndex,featureIndexes) {
+	this.reserved = reserved;
+	this.reqFeatureIndex = reqFeatureIndex;
+	this.featureIndexes = featureIndexes;
+};
+opentype_tables_LangSys.__name__ = "opentype.tables.LangSys";
+opentype_tables_LangSys.prototype = {
+	__class__: opentype_tables_LangSys
+};
+var opentype_tables_LangSysRecord = function(tag,langSys) {
+	this.tag = tag;
+	this.langSys = langSys;
+};
+opentype_tables_LangSysRecord.__name__ = "opentype.tables.LangSysRecord";
+opentype_tables_LangSysRecord.__interfaces__ = [opentype_tables_ITag];
+opentype_tables_LangSysRecord.prototype = {
+	__class__: opentype_tables_LangSysRecord
+};
+var opentype_tables_Loca = function() {
+};
+opentype_tables_Loca.__name__ = "opentype.tables.Loca";
+opentype_tables_Loca.parse = function(data,position,numGlyphs,shortVersion) {
+	return opentype_tables_Loca.parseLocaTable(data,position,numGlyphs,shortVersion);
+};
+opentype_tables_Loca.parseLocaTable = function(data,start,numGlyphs,shortVersion) {
+	var p = new opentype_Parser(data,start);
+	var loca = new opentype_tables_Loca();
+	var parseFn = shortVersion ? $bind(p,p.parseUShort) : $bind(p,p.parseULong);
+	loca.glyphOffsets = [];
+	var _g = 0;
+	var _g1 = numGlyphs + 1;
+	while(_g < _g1) {
+		var i = _g++;
+		var glyphOffset = parseFn();
+		if(shortVersion) {
+			glyphOffset *= 2;
+		}
+		loca.glyphOffsets.push(glyphOffset);
+	}
+	return loca;
+};
+opentype_tables_Loca.prototype = {
+	__class__: opentype_tables_Loca
+};
+var opentype_tables_LookupTable = function(lookupType,lookupFlag,subTables,markFilteringSet) {
 	this.lookupType = lookupType;
 	this.lookupFlag = lookupFlag;
 	this.subTables = subTables;
+	this.markFilteringSet = markFilteringSet;
 };
 opentype_tables_LookupTable.__name__ = "opentype.tables.LookupTable";
 opentype_tables_LookupTable.prototype = {
 	__class__: opentype_tables_LookupTable
 };
+var opentype_tables_Maxp = function() {
+};
+opentype_tables_Maxp.__name__ = "opentype.tables.Maxp";
+opentype_tables_Maxp.parse = function(data,position) {
+	if(position == null) {
+		position = 0;
+	}
+	return opentype_tables_Maxp.parseMaxpTable(data,position);
+};
+opentype_tables_Maxp.parseMaxpTable = function(data,start) {
+	var maxp = new opentype_tables_Maxp();
+	var p = new opentype_Parser(data,start);
+	maxp.version = p.parseVersion();
+	maxp.numGlyphs = p.parseUShort();
+	if(maxp.version == 1.0) {
+		maxp.maxPoints = p.parseUShort();
+		maxp.maxContours = p.parseUShort();
+		maxp.maxCompositePoints = p.parseUShort();
+		maxp.maxCompositeContours = p.parseUShort();
+		maxp.maxZones = p.parseUShort();
+		maxp.maxTwilightPoints = p.parseUShort();
+		maxp.maxStorage = p.parseUShort();
+		maxp.maxFunctionDefs = p.parseUShort();
+		maxp.maxInstructionDefs = p.parseUShort();
+		maxp.maxStackElements = p.parseUShort();
+		maxp.maxSizeOfInstructions = p.parseUShort();
+		maxp.maxComponentElements = p.parseUShort();
+		maxp.maxComponentDepth = p.parseUShort();
+	}
+	return maxp;
+};
+opentype_tables_Maxp.prototype = {
+	__class__: opentype_tables_Maxp
+};
+var opentype_tables_Script = function(defaultLangSys,langSysRecords) {
+	this.defaultLangSys = defaultLangSys;
+	this.langSysRecords = langSysRecords;
+};
+opentype_tables_Script.__name__ = "opentype.tables.Script";
+opentype_tables_Script.prototype = {
+	__class__: opentype_tables_Script
+};
+var opentype_tables_ScriptRecord = function(tag,script) {
+	this.tag = tag;
+	this.script = script;
+};
+opentype_tables_ScriptRecord.__name__ = "opentype.tables.ScriptRecord";
+opentype_tables_ScriptRecord.__interfaces__ = [opentype_tables_ITag];
+opentype_tables_ScriptRecord.prototype = {
+	__class__: opentype_tables_ScriptRecord
+};
 var opentype_tables_Tables = function() {
+	this.layoutTables = new haxe_ds_StringMap();
 };
 opentype_tables_Tables.__name__ = "opentype.tables.Tables";
 opentype_tables_Tables.prototype = {
-	__class__: opentype_tables_Tables
+	set_gpos: function(gpos) {
+		var _this = this.layoutTables;
+		if(__map_reserved["gpos"] != null) {
+			_this.setReserved("gpos",gpos);
+		} else {
+			_this.h["gpos"] = gpos;
+		}
+		return this.gpos = gpos;
+	}
+	,__class__: opentype_tables_Tables
+	,__properties__: {set_gpos:"set_gpos"}
 };
-var opentype_tables_subtables_ClassDefinition = function(format,startGlyphId,classValueArray,classRangeRecords) {
+var opentype_tables_ValueRecord = function() {
+};
+opentype_tables_ValueRecord.__name__ = "opentype.tables.ValueRecord";
+opentype_tables_ValueRecord.prototype = {
+	__class__: opentype_tables_ValueRecord
+};
+var opentype_tables_subtables_ClassDefinition = function(format,startGlyph,classes,ranges) {
 	this.format = format;
-	this.startGlyphId = startGlyphId != null ? startGlyphId : -1;
-	this.classValueArray = classValueArray != null ? classValueArray : [];
-	this.classRangeRecords = classRangeRecords != null ? classRangeRecords : [];
+	this.startGlyph = startGlyph != null ? startGlyph : -1;
+	this.classes = classes != null ? classes : [];
+	this.ranges = ranges != null ? ranges : [];
 };
 opentype_tables_subtables_ClassDefinition.__name__ = "opentype.tables.subtables.ClassDefinition";
 opentype_tables_subtables_ClassDefinition.prototype = {
 	__class__: opentype_tables_subtables_ClassDefinition
-};
-var opentype_tables_subtables_ClassRangeRecord = function(startGlyphId,endGlyphId,classId) {
-	this.startGlyphId = startGlyphId;
-	this.endGlyphId = endGlyphId;
-	this.classId = classId;
-};
-opentype_tables_subtables_ClassRangeRecord.__name__ = "opentype.tables.subtables.ClassRangeRecord";
-opentype_tables_subtables_ClassRangeRecord.prototype = {
-	__class__: opentype_tables_subtables_ClassRangeRecord
 };
 var opentype_tables_subtables_Coverage = function(format,ranges,glyphs) {
 	this.format = format;
@@ -3800,12 +5550,19 @@ opentype_tables_subtables_Coverage.__name__ = "opentype.tables.subtables.Coverag
 opentype_tables_subtables_Coverage.prototype = {
 	__class__: opentype_tables_subtables_Coverage
 };
-var opentype_tables_subtables_RangeRecord = function(startGlyphId,endGlyphId,startCoverageIndex) {
-	this.startGlyphId = startGlyphId;
-	this.endGlyphId = endGlyphId;
-	this.startCoverageIndex = startCoverageIndex;
+var opentype_tables_subtables_IRecord = function() { };
+opentype_tables_subtables_IRecord.__name__ = "opentype.tables.subtables.IRecord";
+opentype_tables_subtables_IRecord.__isInterface__ = true;
+opentype_tables_subtables_IRecord.prototype = {
+	__class__: opentype_tables_subtables_IRecord
+};
+var opentype_tables_subtables_RangeRecord = function(start,end,value) {
+	this.start = start;
+	this.end = end;
+	this.value = value;
 };
 opentype_tables_subtables_RangeRecord.__name__ = "opentype.tables.subtables.RangeRecord";
+opentype_tables_subtables_RangeRecord.__interfaces__ = [opentype_tables_subtables_IRecord];
 opentype_tables_subtables_RangeRecord.prototype = {
 	__class__: opentype_tables_subtables_RangeRecord
 };
@@ -4733,6 +6490,149 @@ var sys_io_FileSeek = $hxEnums["sys.io.FileSeek"] = { __ename__ : true, __constr
 	,SeekCur: {_hx_index:1,__enum__:"sys.io.FileSeek",toString:$estr}
 	,SeekEnd: {_hx_index:2,__enum__:"sys.io.FileSeek",toString:$estr}
 };
+var tables_GposTable = function() {
+	var _gthis = this;
+	buddy_BuddySuite.call(this);
+	this.describe("tables/gpos.hx",buddy_TestFunc.Sync(function() {
+		var tmp = buddy_TestFunc.Sync(function() {
+			var data = "00010000 000A 000C 000E" + "0000" + "0000" + "0000";
+			var res = opentype_tables_Gpos.parse(TestUtil.unhex(data));
+			buddy_ShouldFloat.should(res.version).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 31, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(res.scripts).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 32, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(res.features).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 33, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(res.lookups).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 34, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse a GPOS header",tmp,null,{ fileName : "tables/GposTable.hx", lineNumber : 24, className : "tables.GposTable", methodName : "new"});
+		var tmp1 = buddy_TestFunc.Sync(function() {
+			var data1 = TestUtil.unhex("00010000 0000 0000 0000");
+			var gpos = opentype_tables_Gpos.parse(data1);
+			buddy_ShouldFloat.should(gpos.version).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 39, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(gpos.scripts).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 40, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(gpos.lookups).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 41, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(gpos.features).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 42, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(gpos.lookups).containExactly([],{ fileName : "tables/GposTable.hx", lineNumber : 43, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse a GPOS header with null pointers",tmp1,null,{ fileName : "tables/GposTable.hx", lineNumber : 36, className : "tables.GposTable", methodName : "new"});
+		var tmp2 = buddy_TestFunc.Sync(function() {
+			var data2 = "0001 0008 0002   FFB0 0002 0001   01B3 01BC 0000";
+			var gpos1 = _gthis.parseLookup(1,data2);
+			buddy_ShouldFloat.should(gpos1.posFormat).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 51, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos1.coverage.format).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 52, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos1.coverage.ranges[0].start).be(435,{ fileName : "tables/GposTable.hx", lineNumber : 53, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos1.coverage.ranges[0].end).be(444,{ fileName : "tables/GposTable.hx", lineNumber : 54, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos1.coverage.ranges[0].value).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 55, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos1.value.yPlacement).be(-80,{ fileName : "tables/GposTable.hx", lineNumber : 56, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse lookup1 SinglePosFormat1",tmp2,null,{ fileName : "tables/GposTable.hx", lineNumber : 47, className : "tables.GposTable", methodName : "new"});
+		var tmp3 = buddy_TestFunc.Sync(function() {
+			var data3 = "0001 000E 0099   0050 00D2 0018 0020   0002 0001 00C8 00D1 0000   000B 000F 0001 5540   000B 000F 0001 5540";
+			var gpos2 = _gthis.parseLookup(1,data3);
+			buddy_ShouldFloat.should(gpos2.posFormat).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 63, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.coverage.format).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 64, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.coverage.ranges[0].start).be(200,{ fileName : "tables/GposTable.hx", lineNumber : 65, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.coverage.ranges[0].end).be(209,{ fileName : "tables/GposTable.hx", lineNumber : 66, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.coverage.ranges[0].value).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 67, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.value.xPlacement).be(80,{ fileName : "tables/GposTable.hx", lineNumber : 68, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.value.yAdvance).be(210,{ fileName : "tables/GposTable.hx", lineNumber : 69, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.value.xPlaDevice).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 70, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos2.value.yAdvDevice).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 71, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse lookup1 SinglePosFormat1 with ValueFormat Table and ValueRecord",tmp3,null,{ fileName : "tables/GposTable.hx", lineNumber : 59, className : "tables.GposTable", methodName : "new"});
+		var tmp4 = buddy_TestFunc.Sync(function() {
+			var data4 = "0002 0014 0005 0003   0032 0032   0019 0019  000A 000A   0001 0003 004F 0125 0129";
+			var gpos3 = _gthis.parseLookup(1,data4);
+			buddy_ShouldFloat.should(gpos3.posFormat).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 78, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.coverage.format).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 79, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(gpos3.coverage.glyphs).containExactly([79,293,297],{ fileName : "tables/GposTable.hx", lineNumber : 80, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[0].xPlacement).be(50,{ fileName : "tables/GposTable.hx", lineNumber : 81, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[0].xAdvance).be(50,{ fileName : "tables/GposTable.hx", lineNumber : 82, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[1].xPlacement).be(25,{ fileName : "tables/GposTable.hx", lineNumber : 83, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[1].xAdvance).be(25,{ fileName : "tables/GposTable.hx", lineNumber : 84, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[2].xPlacement).be(10,{ fileName : "tables/GposTable.hx", lineNumber : 85, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(gpos3.values[2].xAdvance).be(10,{ fileName : "tables/GposTable.hx", lineNumber : 86, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse lookup1 SinglePosFormat2",tmp4,null,{ fileName : "tables/GposTable.hx", lineNumber : 74, className : "tables.GposTable", methodName : "new"});
+		var tmp5 = buddy_TestFunc.Sync(function() {
+			var data5 = "0001 001E 0004 0001 0002 000E 0016   0001 0059 FFE2 FFEC 0001 0059 FFD8 FFE7   0001 0002 002D 0031";
+			var lu2 = _gthis.parseLookup(2,data5);
+			buddy_ShouldFloat.should(lu2.posFormat).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 95, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.coverage.format).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 96, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(lu2.coverage.glyphs).containExactly([45,49],{ fileName : "tables/GposTable.hx", lineNumber : 97, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.valueFormat1).be(4,{ fileName : "tables/GposTable.hx", lineNumber : 98, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.valueFormat2).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 99, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[0][0].secondGlyph).be(89,{ fileName : "tables/GposTable.hx", lineNumber : 100, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[0][0].value1.xAdvance).be(-30,{ fileName : "tables/GposTable.hx", lineNumber : 101, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[0][0].value2.xPlacement).be(-20,{ fileName : "tables/GposTable.hx", lineNumber : 102, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[1][0].secondGlyph).be(89,{ fileName : "tables/GposTable.hx", lineNumber : 103, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[1][0].value1.xAdvance).be(-40,{ fileName : "tables/GposTable.hx", lineNumber : 104, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu2.pairSets[1][0].value2.xPlacement).be(-25,{ fileName : "tables/GposTable.hx", lineNumber : 105, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse lookup2 PairPosFormat1",tmp5,null,{ fileName : "tables/GposTable.hx", lineNumber : 90, className : "tables.GposTable", methodName : "new"});
+		var tmp6 = buddy_TestFunc.Sync(function() {
+			var data6 = "0002 0018 0004 0000 0022 0032 0002 0002 0000 0000 0000 FFCE   0001 0003 0046 0047 0049   0002 0002 0046 0047 0001 0049 0049 0001   0002 0001 006A 006B 0001";
+			var lu21 = _gthis.parseLookup(2,data6);
+			buddy_ShouldFloat.should(lu21.posFormat).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 112, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.coverage.format).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 113, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldIterable.should(lu21.coverage.glyphs).containExactly([70,71,73],{ fileName : "tables/GposTable.hx", lineNumber : 114, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.valueFormat1).be(4,{ fileName : "tables/GposTable.hx", lineNumber : 115, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.valueFormat2).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 116, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.format).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 117, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[0].start).be(70,{ fileName : "tables/GposTable.hx", lineNumber : 118, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[0].end).be(71,{ fileName : "tables/GposTable.hx", lineNumber : 119, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[0].value).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 120, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[1].start).be(73,{ fileName : "tables/GposTable.hx", lineNumber : 121, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[1].end).be(73,{ fileName : "tables/GposTable.hx", lineNumber : 122, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef1.ranges[1].value).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 123, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef2.format).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 124, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef2.ranges[0].start).be(106,{ fileName : "tables/GposTable.hx", lineNumber : 125, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef2.ranges[0].end).be(107,{ fileName : "tables/GposTable.hx", lineNumber : 126, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classDef2.ranges[0].value).be(1,{ fileName : "tables/GposTable.hx", lineNumber : 127, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classCount1).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 128, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classCount2).be(2,{ fileName : "tables/GposTable.hx", lineNumber : 129, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classRecords[0][0].value1.xAdvance).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 130, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldDynamic.should(lu21.classRecords[0][0].value2).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 131, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classRecords[0][1].value1.xAdvance).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 132, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldDynamic.should(lu21.classRecords[0][1].value2).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 133, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classRecords[1][0].value1.xAdvance).be(0,{ fileName : "tables/GposTable.hx", lineNumber : 134, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldDynamic.should(lu21.classRecords[1][0].value2).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 135, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldFloat.should(lu21.classRecords[1][1].value1.xAdvance).be(-50,{ fileName : "tables/GposTable.hx", lineNumber : 136, className : "tables.GposTable", methodName : "new"});
+			buddy_ShouldDynamic.should(lu21.classRecords[1][1].value2).be(null,{ fileName : "tables/GposTable.hx", lineNumber : 137, className : "tables.GposTable", methodName : "new"});
+		});
+		_gthis.it("can parse lookup2 PairPosFormat2",tmp6,null,{ fileName : "tables/GposTable.hx", lineNumber : 108, className : "tables.GposTable", methodName : "new"});
+	}));
+};
+tables_GposTable.__name__ = "tables.GposTable";
+tables_GposTable.__super__ = buddy_BuddySuite;
+tables_GposTable.prototype = $extend(buddy_BuddySuite.prototype,{
+	parseLookup: function(lookupType,subTableData) {
+		var data = "00010000 000A 000C 000E" + "0000" + "0000" + "0001 0004" + "000" + lookupType + "0000 0001 0008" + subTableData;
+		return opentype_tables_Gpos.parse(TestUtil.unhex(data)).lookups[0].subTables[0];
+	}
+	,__class__: tables_GposTable
+});
+var tables_LocaTable = function() {
+	var _gthis = this;
+	buddy_BuddySuite.call(this);
+	this.describe("tables/Loca.hx",buddy_TestFunc.Sync(function() {
+		var tmp = buddy_TestFunc.Sync(function() {
+			var data = TestUtil.unhex("DEAD BEEF 0010 0100 80CE");
+			var loca = opentype_tables_Loca.parse(data,4,2,true);
+			buddy_ShouldIterable.should(loca.glyphOffsets).containExactly([32,512,65948],{ fileName : "tables/LocaTable.hx", lineNumber : 13, className : "tables.LocaTable", methodName : "new"});
+		});
+		_gthis.it("can parse the short version",tmp,null,{ fileName : "tables/LocaTable.hx", lineNumber : 10, className : "tables.LocaTable", methodName : "new"});
+		var tmp1 = buddy_TestFunc.Sync(function() {
+			var data1 = TestUtil.unhex("DEADBEEF 00000010 00000100 ABCD5678");
+			var loca1 = opentype_tables_Loca.parse(data1,4,2,false);
+			buddy_ShouldIterable.should(loca1.glyphOffsets).containExactly([16,256,-1412606344],{ fileName : "tables/LocaTable.hx", lineNumber : 19, className : "tables.LocaTable", methodName : "new"});
+		});
+		_gthis.it("can parse the long version",tmp1,null,{ fileName : "tables/LocaTable.hx", lineNumber : 16, className : "tables.LocaTable", methodName : "new"});
+	}));
+};
+tables_LocaTable.__name__ = "tables.LocaTable";
+tables_LocaTable.__super__ = buddy_BuddySuite;
+tables_LocaTable.prototype = $extend(buddy_BuddySuite.prototype,{
+	__class__: tables_LocaTable
+});
 function $getIterator(o) { if( o instanceof Array ) return HxOverrides.iter(o); else return o.iterator(); }
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $global.$haxeUID++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = m.bind(o); o.hx__closures__[m.__id__] = f; } return f; }
 $global.$haxeUID |= 0;
@@ -4748,6 +6648,7 @@ var Float = Number;
 var Bool = Boolean;
 var Class = { };
 var Enum = { };
+var __map_reserved = {};
 Object.defineProperty(js__$Boot_HaxeError.prototype,"message",{ get : function() {
 	return String(this.val);
 }});
@@ -4761,6 +6662,14 @@ buddy_reporting__$TraceReporter_Color_$Impl_$.Green = 32;
 buddy_reporting__$TraceReporter_Color_$Impl_$.White = 37;
 buddy_tests_SelfTest.lastSpec = new buddy_Spec("No spec","No filename");
 buddy_tests_SelfTest.lastSuite = new buddy_Suite("No suite");
+opentype_Parser.typeOffsetByte = 1;
+opentype_Parser.typeOffsetUShort = 2;
+opentype_Parser.typeOffsetShort = 2;
+opentype_Parser.typeOffsetULong = 4;
+opentype_Parser.typeOffsetFixed = 4;
+opentype_Parser.typeOffsetLongDateTime = 8;
+opentype_Parser.typeOffsetTag = 4;
+opentype_tables_Gpos.subtableParsers = [null,opentype_tables_Gpos.parseLookup1,opentype_tables_Gpos.parseLookup2,opentype_tables_Gpos.error,opentype_tables_Gpos.error,opentype_tables_Gpos.error,opentype_tables_Gpos.error,opentype_tables_Gpos.error,opentype_tables_Gpos.error,opentype_tables_Gpos.error];
 promhx_base_EventLoop.queue = new haxe_ds_List();
 Main.main();
 })(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

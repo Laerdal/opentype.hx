@@ -2,7 +2,8 @@ package opentype.tables;
 
 import haxe.io.Bytes;
 
-class Maxp {
+class Maxp 
+{
 // The `maxp` table establishes the memory requirements for the font.
 // We need it just to get the number of glyphs in the font.
 // https://www.microsoft.com/typography/OTSPEC/maxp.htm

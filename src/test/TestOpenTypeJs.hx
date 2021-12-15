@@ -4,7 +4,7 @@ class TestOpenTypeJs {
         trace("Hello");
         var ot = js.Lib.require("./opentype.js");
         ot.load(
-            "fonts/arial.ttf", 
+            "fonts/lato.ttf", 
             (e,f) -> { trace("Done"); }
 
         );
