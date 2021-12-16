@@ -285,7 +285,7 @@ class Layout {
                     lookupType: lookupType,
                     lookupFlag: 0,
                     subTables: [],
-                    markFilteringSet: null
+                    markFilteringSet: -1
                 };
                 final index = allLookups.length;
                 allLookups.push(lookupTable);
@@ -332,7 +332,7 @@ class Layout {
             case 2:
                 final range = searchRange(coverageTable.ranges, glyphIndex);
                 return range != null ? range.value + glyphIndex - range.start : -1;
-            default : return null;
+            default : return -1;
         }
     }
 

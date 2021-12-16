@@ -88,12 +88,16 @@ class TestOpenType extends buddy.BuddySuite {
                 });       
                 describe('Font.charToGlyph', {
                     it("can find a glyph for a given charater.", {
-                        font.charToGlyph('A'.code).unicode.should.be(65); //Null default character should be the first
-                        font.charToGlyph(' '.code).unicode.should.be(32); //Null default character should be the first
+                        font.charToGlyph('A'.code).unicode.should.be(0x0041);
+                        font.charToGlyph('A'.code).advanceWidth.should.be(1360);
+                        font.charToGlyph(' '.code).unicode.should.be(0x20);
+                        font.charToGlyph(' '.code).advanceWidth.should.be(386);
+                        font.charToGlyph('~'.code).unicode.should.be(0x007E);
+                        font.charToGlyph('~'.code).advanceWidth.should.be(1160);
                     });
                 });
                 describe('Font.getKerningValueForIndexes', {
-                    it("can find a kerning value for two following", {
+                    it("can find a kerning value for two following characters", {
                         final getKerningValue = (s : String) -> {
                             return font.getKerningValueForIndexes(
                                 font.charToGlyphIndex(s.charCodeAt(0)),
@@ -103,7 +107,7 @@ class TestOpenType extends buddy.BuddySuite {
                         getKerningValue('AW').should.be(-84);
                         getKerningValue('To').should.be(-210);
                         getKerningValue('Lf').should.be(0);
-                    });
+                    });   
                 });    
             });
             describe('Using fonts/arial.ttf test that', {
