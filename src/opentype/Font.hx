@@ -25,7 +25,7 @@ class Font {
     public var position(default, null) : Position;
     public var unitsPerEm : Int;
     public var numGlyphs : Int;
-    public var numMetrics : Int;
+    public var numberOfHMetrics : Int;
     public var glyphs : GlyphSet;
     public var _hmtxTableData : Array<HorizontalMetrics>;
     public var kerningPairs : Map<String,Int>;

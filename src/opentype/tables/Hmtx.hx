@@ -6,19 +6,20 @@ import haxe.io.Bytes;
 class Hmtx {
     public function new() {}
 
-    public static function parse(data : Bytes, position : Int, font : Font) : Hmtx {
-        final p = new Parser(data, position);
-        final hmtx = new Hmtx();
-        return hmtx;
+    public static function parse(data : Bytes, position : Int, font : Font, lowMemory : Bool) {
+        if (lowMemory)
+            parseHmtxTableOnLowMemory(data, position, font);
+        else
+            parseHmtxTableAll(data, position, font);
     }
 
-    function parseHmtxTableAll(data, start, font : Font) {
+    static function parseHmtxTableAll(data, start, font : Font) {
         var advanceWidth = 0;
         var leftSideBearing = 0;
         final p = new Parser(data, start);
         for (i in 0...font.numGlyphs) {
             // If the font is monospaced, only one entry is needed. This last entry applies to all subsequent glyphs.
-            if (i < font.numMetrics) {
+            if (i < font.numberOfHMetrics) {
                 advanceWidth = p.parseUShort();
                 leftSideBearing = p.parseShort();
             }
@@ -29,7 +30,7 @@ class Hmtx {
         }
     }
     
-    function parseHmtxTableOnLowMemory(data : Bytes, start : Int, font : Font) {
+    static function parseHmtxTableOnLowMemory(data : Bytes, start : Int, font : Font) {
         font._hmtxTableData = [];
     
         var advanceWidth = 0;
@@ -37,7 +38,7 @@ class Hmtx {
         final p = new Parser(data, start);
         for (i in 0...font.numGlyphs) {
             // If the font is monospaced, only one entry is needed. This last entry applies to all subsequent glyphs.
-            if (i < font.numMetrics) {
+            if (i < font.numberOfHMetrics) {
                 advanceWidth = p.parseUShort();
                 leftSideBearing = p.parseShort();
             }

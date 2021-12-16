@@ -13,6 +13,7 @@ class Tables {
     public var name : String;
     public var cmap : Cmap;
     public var head : Head;
+    public var hhea : Hhea;
     public var gpos(default,set) : Gpos;
     public var maxp : Maxp;
 

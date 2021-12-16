@@ -7,6 +7,7 @@ import opentype.tables.GlyphTable;
 import opentype.tables.Cmap;
 import opentype.tables.Gpos;
 import opentype.tables.Head;
+import opentype.tables.Hhea;
 import opentype.tables.Kern;
 import opentype.tables.Loca;
 import opentype.tables.Maxp;
@@ -234,15 +235,12 @@ class OpenType {
 	                font.tables.head = Head.parse(table.data, table.offset);
 	                font.unitsPerEm = font.tables.head.unitsPerEm;
 	                indexToLocFormat = font.tables.head.indexToLocFormat;
-/*
                 case 'hhea':
 	                table = uncompressTable(data, tableEntry);
-	                font.tables.hhea = hhea.parse(table.data, table.offset);
-	                font.ascender = font.tables.hhea.ascender;
-	                font.descender = font.tables.hhea.descender;
+	                font.tables.hhea = Hhea.parse(table.data, table.offset);
+	                //font.ascender = font.tables.hhea.ascender;
+	                //font.descender = font.tables.hhea.descender;
 	                font.numberOfHMetrics = font.tables.hhea.numberOfHMetrics;
-	                break;
-*/                    
 	            case 'hmtx':
 	                hmtxTableEntry = tableEntry;
 /*
@@ -321,7 +319,7 @@ class OpenType {
         }
     */
         final hmtxTable = uncompressTable(data, hmtxTableEntry);
-        Hmtx.parse(hmtxTable.data, hmtxTable.offset, font);
+        Hmtx.parse(hmtxTable.data, hmtxTable.offset, font, false);
         Encoding.addGlyphNames(font, false);
 
         if (kernTableEntry != null) {
