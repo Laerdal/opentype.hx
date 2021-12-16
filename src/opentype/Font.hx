@@ -43,12 +43,17 @@ class Font {
     * @return {Number}
     */
     public function getKerningValueForIndexes(leftIndex : Int, rightIndex : Int) {
+        var kerning = 0; 
         if (position.hasKerningTables()) {
-            return position.getKerningValue(leftIndex, rightIndex);
+            kerning = position.getKerningValue(leftIndex, rightIndex);
         }
-        // "kern" table
-        var kp = leftIndex + ',' + rightIndex;
-        return kerningPairs.exists(kp) ? kerningPairs[kp] : 0;
+        if (kerning != 0) {
+            return kerning;
+        } else {
+            //fallback to kerning tables
+            var kp = leftIndex + ',' + rightIndex;
+            return kerningPairs.exists(kp) ? kerningPairs[leftIndex + ',' + rightIndex] : 0;
+        }
     }
 
     /**

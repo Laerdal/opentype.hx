@@ -59,7 +59,7 @@ class TestOpenType extends buddy.BuddySuite {
                     font.outlinesFormat.should.equal(opentype.Flavor.Ttf);
                 });
             });
-            describe('font', {
+            describe('Using fonts/lato.ttf test that', {
                 var fontBytes : Bytes;
                 var font : Font;
                 beforeAll(function(done) {
@@ -69,35 +69,88 @@ class TestOpenType extends buddy.BuddySuite {
                         done();
                     }, (e) -> {});
                 });
-                it("hasChar can check if font has a glyph for a given character.", {
-                    font.hasChar(0).should.be(true); //Null default character
-                    font.hasChar(0x000D).should.be(true);//Nonmarkingreturn
-                    font.hasChar(0x000C).should.be(false);//Control character not expected to be included in lato
-                    font.hasChar(' '.code).should.be(true); //Space character - 32(0x20)
-                    font.hasChar('A'.code).should.be(true);
+                describe('Font.hasChar', {
+                    it("can check if font has a glyph for a given character.", {
+                        font.hasChar(0).should.be(true); //Null default character
+                        font.hasChar(0x000D).should.be(true);//Nonmarkingreturn
+                        font.hasChar(0x000C).should.be(false);//Control character not expected to be included in lato
+                        font.hasChar(' '.code).should.be(true); //Space character - 32(0x20)
+                        font.hasChar('A'.code).should.be(true);
+                    });
                 });
-
-                it("charToGlyphIndex can find a index for a given charater.", {
-                    font.charToGlyphIndex(0).should.be(1); //Null default character should be the first
-                    font.charToGlyphIndex(0x000D).should.be(2); //Nonmarkingreturn should be second
-                    font.charToGlyphIndex(' '.code).should.be(3); //Space character - 32(0x20)
-                    font.charToGlyphIndex('A'.code).should.be(36);//A 36
+                describe('Font.charToGlyphIndex', {
+                    it("can find a index for a given charater.", {
+                        font.charToGlyphIndex(0).should.be(1); //Null default character should be the first
+                        font.charToGlyphIndex(0x000D).should.be(2); //Nonmarkingreturn should be second
+                        font.charToGlyphIndex(' '.code).should.be(3); //Space character - 32(0x20)
+                        font.charToGlyphIndex('A'.code).should.be(36);//A 36
+                    });
                 });       
-                
-                it("charToGlyph can find a glyph for a given charater.", {
-                    font.charToGlyph('A'.code).unicode.should.be(65); //Null default character should be the first
-                    font.charToGlyph(' '.code).unicode.should.be(32); //Null default character should be the first
+                describe('Font.charToGlyph', {
+                    it("can find a glyph for a given charater.", {
+                        font.charToGlyph('A'.code).unicode.should.be(65); //Null default character should be the first
+                        font.charToGlyph(' '.code).unicode.should.be(32); //Null default character should be the first
+                    });
                 });
-                
-
-                it("charToGlyphIndex can find a index for a given charater.", {
-                    var ia = font.charToGlyphIndex('A'.code);
-                    var iw = font.charToGlyphIndex('W'.code);
-                    font.getKerningValueForIndexes(ia, iw).should.be(-84);
+                describe('Font.getKerningValueForIndexes', {
+                    it("can find a kerning value for two following", {
+                        final getKerningValue = (s : String) -> {
+                            return font.getKerningValueForIndexes(
+                                font.charToGlyphIndex(s.charCodeAt(0)),
+                                font.charToGlyphIndex(s.charCodeAt(1))
+                            );
+                        }
+                        getKerningValue('AW').should.be(-84);
+                        getKerningValue('To').should.be(-210);
+                        getKerningValue('Lf').should.be(0);
+                    });
+                });    
+            });
+            describe('Using fonts/arial.ttf test that', {
+                var fontBytes : Bytes;
+                var font : Font;
+                beforeAll(function(done) {
+                    OpenType.loadFromFile("fonts/arial.ttf", (b) -> {
+                        fontBytes = b;
+                        font = OpenType.parse(fontBytes);
+                        done();
+                    }, (e) -> {});
                 });
-                
-
-
+                describe('Font.hasChar', {
+                    it("can check if font has a glyph for a given character.", {
+                        font.hasChar(0).should.be(false); //Null default character
+                        font.hasChar(' '.code).should.be(true); //Space character - 32(0x20)
+                        font.hasChar('A'.code).should.be(true);
+                        font.hasChar(0x000C).should.be(false);//Control character not expected to be included in arial
+                        font.hasChar(0x00A0).should.be(true);//NO-BREAK_SPACE
+                    });
+                });
+                describe('Font.hasChar', {
+                        it("charToGlyphIndex can find a index for a given charater.", {
+                        font.charToGlyphIndex(0).should.be(0); //Null default character should be the first
+                        font.charToGlyphIndex(' '.code).should.be(3); //Space character - 32(0x20)
+                        font.charToGlyphIndex('A'.code).should.be(36);//A 36
+                    });
+                });
+                describe('Font.charToGlyph', {
+                    it("can find a glyph for a given charater.", {
+                        font.charToGlyph('A'.code).unicode.should.be(65); //Null default character should be the first
+                        font.charToGlyph(' '.code).unicode.should.be(32); //Null default character should be the first
+                    });
+                });
+                describe('Font.getKerningValueForIndexes', {
+                        it("can find a kerning value for two following", {
+                        final getKerningValue = (s : String) -> {
+                            return font.getKerningValueForIndexes(
+                                font.charToGlyphIndex(s.charCodeAt(0)),
+                                font.charToGlyphIndex(s.charCodeAt(1))
+                            );
+                        }
+                        getKerningValue('AW').should.be(-76);
+                        getKerningValue('To').should.be(-227);
+                        getKerningValue('Lf').should.be(0);
+                    });
+                });
             });
         });
     }

@@ -328,7 +328,7 @@ class OpenType {
             final kernTable = uncompressTable(data, kernTableEntry);
             font.kerningPairs = Kern.parse(kernTable.data, kernTable.offset).pairs;
         } else {
-            font.kerningPairs = null;
+            font.kerningPairs = [];
         }
 
         if(gposTableEntry != null) {
