@@ -173,7 +173,6 @@ class OpenType {
         bi.bigEndian = true;
         data = bi.readAll();
 
-
         var numTables;
         var tableEntries = [];
         final signature : String = Parser.getTag(data, 0);
@@ -301,7 +300,7 @@ class OpenType {
 
         final nameTable = uncompressTable(data, nameTableEntry);
         //font.tables.name = Name.parse(nameTable.data, nameTable.offset, ltagTable);
-        var n = Name.parse(nameTable.data, nameTable.offset, ltagTable);
+        font.names = Name.parse(nameTable.data, nameTable.offset, ltagTable).properties;
         //font.names = font.tables.name;
         if (glyfTableEntry != null && locaTableEntry != null) {
             final shortVersion = indexToLocFormat == 0;

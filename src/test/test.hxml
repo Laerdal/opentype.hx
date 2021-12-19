@@ -13,9 +13,9 @@
 --main TestOpenTypeJs
 --cmd node openTypeTest.js 
 
-#--next 
-#
-#--cs out/cs 
-#--main MainCs
-#--cmd cd out/cs/bin 
-#--cmd MainCs.exe 
+--next 
+
+--cs out/cs 
+--main MainCs
+--cmd cd out/cs/bin 
+--cmd MainCs.exe 

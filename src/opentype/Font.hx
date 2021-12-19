@@ -8,7 +8,7 @@ import opentype.Encoding.DefaultEncoding;
 class Font {
     public function new(?options : FontOptions) {
         tables = options != null && options.tables != null ? options.tables : new Tables();
-        names = options != null && options.names != null ? options.names : new FontNames();
+        //names = options != null && options.names != null ? options.names : new FontNames();
 
         if(options != null) {
 
@@ -21,7 +21,7 @@ class Font {
 
     }
 
-    public var names(default, null) : FontNames;
+    public var names :  Map<String, Map<String, String>> = [];
     public var outlinesFormat : Flavor;
     public var tables(default, null) : Tables;
     public var position(default, null) : Position;

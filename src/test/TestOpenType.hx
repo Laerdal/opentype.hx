@@ -111,8 +111,9 @@ class TestOpenType extends buddy.BuddySuite {
                 });
                 describe('Font.getGlyphIndicies', {
                     it("can get all font indicies", {
-                        trace(font.names.fontFamily);
-                        trace(font.names.fullName);
+                        trace(font.names["fontFamily"]["en"]);
+                        trace(font.names["fullName"]["en"]);
+                        trace(font.names["fontSubfamily"]["en"]);
                         
                         var indicies = font.getGlyphIndicies();
                         trace(indicies.length);
