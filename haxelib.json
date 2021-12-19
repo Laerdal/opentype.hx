@@ -8,5 +8,6 @@
     "classPath": "src/",
     "releasenote": "Initial alpha release",
     "contributors": ["mikkelmr"],
-    "dependencies": { }
+    "dependencies": {
+        "buddy": "" }
   }
