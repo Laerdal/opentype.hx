@@ -7,12 +7,6 @@
 --main Main
 --cmd node test.js
 
---next
--lib hxnodejs
--js openTypeTest.js 
---main TestOpenTypeJs
---cmd node openTypeTest.js 
-
 --next 
 
 --cs out/cs 
