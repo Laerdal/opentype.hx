@@ -8,6 +8,13 @@ class BytesHelper {
 		return Lambda.fold(codes, (c,r) -> r + String.fromCharCode(c), "");
 	}
 
+	public static inline function readS8(bytes : Bytes, position: Int = 0): Int {
+		var byte = bytes.get(position);
+		var sign = (byte & 0x80) == 0 ? 1 : -1;
+		byte = byte & 0x7F;
+		return sign * byte;
+	}
+	
 	public static inline function readU8(bytes : Bytes, position: Int = 0) : Int {
 		return bytes.get(position);
 	}
@@ -25,6 +32,12 @@ class BytesHelper {
 		var second = bytes.get(position + 1);
 		return first * 256 + second;
 	}
+
+	public static inline function readU16LE(bytes : Bytes, position: Int): Int {
+		var first = bytes.get(position + 0);
+		var second = bytes.get(position + 1);
+		return second * 256 + first;
+	}	
 
 	public static inline function readS16BE(bytes : Bytes, position: Int): Int {
 		var ch1 = bytes.readU8(position + 0);

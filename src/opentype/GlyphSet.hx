@@ -87,7 +87,11 @@ class GlyphSet {
             */
         }
 
-        return this.glyphs[index].glyph;
+        return glyphs[index].glyph;
+    }
+
+    public function getIndicies() : Array<Int> {
+        return [for(k => v in glyphs) v.glyph.index];
     }
 
     public var length(default, null) : Int;

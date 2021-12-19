@@ -72,6 +72,43 @@ class Position extends Layout {
         return 0;
     };
 
+    public function getKerningPairs(index : Int) : Array<Array<Int>> {
+        return getKerningPairsForLookups(defaultKerningTables, index);
+    }
+
+    public function getKerningPairsForLookups(kerningLookups : Array<LookupTable>, index : Int) : Array<Array<Int>> {
+        var res = [];
+
+        for (i in 0...kerningLookups.length) {
+            final subtables = kerningLookups[i].subTables;
+            for (j in 0...subtables.length) {
+                final subtable : Lookup = subtables[j];
+                final covIndex = getCoverageIndex(subtable.coverage, index);
+                if (covIndex < 0) continue;
+                switch (subtable.posFormat) {
+                    case 1:
+                        // Search Pair Adjustment Positioning Format 1
+                        var pairSet = subtable.pairSets[covIndex];
+                        for (k in 0...pairSet.length) {
+                            var pair = pairSet[k];
+                            //if (pair.secondGlyph == rightIndex) {
+                                //return pair.value1 != null ? pair.value1.xAdvance : 0;
+                            //}
+                            res.push([pair.secondGlyph, pair.value1.xAdvance]);
+                        }
+                        break;      // left glyph found, not right glyph - try next subtable
+                    case 2:
+                        // Search Pair Adjustment Positioning Format 2
+                        //final class1 = this.getGlyphClass(subtable.classDef1, leftIndex);
+                        //final class2 = this.getGlyphClass(subtable.classDef2, rightIndex);
+                        //final pair = subtable.classRecords[class1][class2];
+                        //return pair.value1 != null ? pair.value1.xAdvance : 0;
+                }
+            }
+        }
+        return res;
+    };    
+
     /**
     * List all kerning lookup tables.
     *
@@ -83,6 +120,6 @@ class Position extends Layout {
         if (font.tables.gpos != null) {
             return getLookupTables(script, language, 'kern', 2, false);
         }
-        return null;
+        return [];
     };
 }

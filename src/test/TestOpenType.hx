@@ -108,7 +108,19 @@ class TestOpenType extends buddy.BuddySuite {
                         getKerningValue('To').should.be(-210);
                         getKerningValue('Lf').should.be(0);
                     });   
-                });    
+                });
+                describe('Font.getGlyphIndicies', {
+                    it("can get all font indicies", {
+                        trace(font.names.fontFamily);
+                        trace(font.names.fullName);
+                        
+                        var indicies = font.getGlyphIndicies();
+                        trace(indicies.length);
+                        var kerningPairs = [for(i in indicies) font.getKerningPairs(i) ];
+                        trace(kerningPairs.length);
+                        //trace(indicies.length);
+                    });
+                });
             });
             describe('Using fonts/arial.ttf test that', {
                 var fontBytes : Bytes;
@@ -143,7 +155,7 @@ class TestOpenType extends buddy.BuddySuite {
                     });
                 });
                 describe('Font.getKerningValueForIndexes', {
-                        it("can find a kerning value for two following", {
+                        it("can find a kerning value for two following characters", {
                         final getKerningValue = (s : String) -> {
                             return font.getKerningValueForIndexes(
                                 font.charToGlyphIndex(s.charCodeAt(0)),

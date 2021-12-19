@@ -5,6 +5,7 @@ import opentype.tables.Cmap;
 interface IEncoding {
     function charToGlyphIndex(char : Int) : Int;
     function hasChar(char : Int) : Bool;
+    function getIndicies() : Array<Int>;
 }
 
 class DefaultEncoding 
@@ -30,6 +31,10 @@ implements IEncoding
         }
         return -1;    
     }
+
+    public function getIndicies() : Array<Int> {
+        return glyphs.getIndicies();
+    }
 }
 
 class CmapEncoding 
@@ -51,6 +56,10 @@ implements IEncoding
             0;
         } 
     }
+
+    public function getIndicies() : Array<Int> {
+        return [for(k => v in cmap.glyphIndexMap) v];
+    }    
 }
 
 class Encoding {

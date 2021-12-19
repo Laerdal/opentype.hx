@@ -10,6 +10,8 @@ import opentype.tables.Head;
 import opentype.tables.Hhea;
 import opentype.tables.Kern;
 import opentype.tables.Loca;
+import opentype.tables.Ltag;
+import opentype.tables.Name;
 import opentype.tables.Maxp;
 import opentype.tables.Hmtx;
 using opentype.BytesHelper;
@@ -134,7 +136,7 @@ class OpenType {
 	 * @param  {Object}
 	 * @return {TableData}
 	 */
-    public static function uncompressTable(data : Bytes, tableEntry : TableEntry) : Table {
+    public static function uncompressTable(data : Bytes, tableEntry : TableEntry) : TableData {
 	    if (tableEntry.compression == Woff) {
             var dest : haxe.io.Bytes = haxe.io.Bytes.alloc(tableEntry.length); 
         
@@ -162,7 +164,7 @@ class OpenType {
 
     public static function parse(data : Bytes) : Font {
         var indexToLocFormat : Int = -1;
-        var ltagTable;
+        var ltagTable = [];
     
         final font = new Font();
     
@@ -203,13 +205,13 @@ class OpenType {
 	    var hmtxTableEntry : TableEntry = null;
 	    var kernTableEntry : TableEntry = null;
 	    var locaTableEntry : TableEntry = null;
-	    var nameTableEntry;
+	    var nameTableEntry : TableEntry = null;
 	    var metaTableEntry;
 	    var p;
 
 	    for (i in 0...numTables) {
 	        var tableEntry = tableEntries[i];
-	        var table : Table;
+	        var table : TableData;
 	        switch (tableEntry.tag) {
 	            case 'cmap':
 	                table = uncompressTable(data, tableEntry);
@@ -243,20 +245,16 @@ class OpenType {
 	                font.numberOfHMetrics = font.tables.hhea.numberOfHMetrics;
 	            case 'hmtx':
 	                hmtxTableEntry = tableEntry;
-/*
                 case 'ltag':
 	                table = uncompressTable(data, tableEntry);
-	                ltagTable = ltag.parse(table.data, table.offset);
-	                break;
-                */
+	                ltagTable = Ltag.parse(table.data, table.offset);
 	            case 'maxp':
 	                table = uncompressTable(data, tableEntry);
 	                font.tables.maxp = Maxp.parse(table.data, table.offset);
 	                font.numGlyphs = font.tables.maxp.numGlyphs;
-	            /*
                 case 'name':
 	                nameTableEntry = tableEntry;
-	                break;
+	            /*
 	            case 'OS/2':
 	                table = uncompressTable(data, tableEntry);
 	                font.tables.os2 = os2.parse(table.data, table.offset);
@@ -301,8 +299,9 @@ class OpenType {
 	        }
 	    }
 
-        //final nameTable = uncompressTable(data, nameTableEntry);
-        //font.tables.name = _name.parse(nameTable.data, nameTable.offset, ltagTable);
+        final nameTable = uncompressTable(data, nameTableEntry);
+        //font.tables.name = Name.parse(nameTable.data, nameTable.offset, ltagTable);
+        var n = Name.parse(nameTable.data, nameTable.offset, ltagTable);
         //font.names = font.tables.name;
         if (glyfTableEntry != null && locaTableEntry != null) {
             final shortVersion = indexToLocFormat == 0;
