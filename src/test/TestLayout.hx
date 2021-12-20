@@ -13,7 +13,7 @@ import opentype.tables.subtables.Coverage;
 
 class TestLayout extends buddy.BuddySuite {
     public function new() {
-        describe('layout.js', {
+        describe('Layout.hx', {
             var font;
             var layout;
             final notdefGlyph = new Glyph({

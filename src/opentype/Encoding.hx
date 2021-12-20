@@ -3,6 +3,7 @@ package opentype;
 import opentype.tables.Cmap;
 
 interface IEncoding {
+    function getChars() : Array<Int>;
     function charToGlyphIndex(char : Int) : Int;
     function hasChar(char : Int) : Bool;
     function getIndicies() : Array<Int>;
@@ -14,6 +15,15 @@ implements IEncoding
     var glyphs : GlyphSet;   
     public function new(font : Font) {
         glyphs = font.glyphs != null ? font.glyphs : new GlyphSet(font);
+    }
+
+    public function getChars() : Array<Int> {
+        var chars = [];
+        for (g in 0...glyphs.length) {
+            final glyph = glyphs.get(g);
+            chars = chars.concat(glyph.unicodes);
+        }
+        return chars;
     }
 
     public function hasChar(char : Int) : Bool {
@@ -43,6 +53,10 @@ implements IEncoding
     var cmap : Cmap;
     public function new(cmap : Cmap) {
         this.cmap = cmap;
+    }
+
+    public function getChars() : Array<Int> {
+        return [for(k => v in cmap.glyphIndexMap) k ];
     }
 
     public function hasChar(char : Int) : Bool {

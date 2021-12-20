@@ -102,15 +102,22 @@ class Font {
     * @param  {string}
     * @return {opentype.Glyph}
     */
-    public function charToGlyph(c) {
+    public function charToGlyph(c) : Glyph {
         final glyphIndex = charToGlyphIndex(c);
+        return getGlyphByIndex(glyphIndex);
+    }
+
+    public function getGlyphByIndex(glyphIndex) : Glyph {
         var glyph = glyphs.get(glyphIndex);
         if (glyph == null) {
             // .notdef
             glyph = glyphs.get(0);
         }
+        return glyph;        
+    }
 
-        return glyph;
+    public function getChars() : Array<Int> {
+        return encoding.getChars();
     }
 
     public function getGlyphIndicies() : Array<Int> {

@@ -12,5 +12,6 @@ class Main implements Buddy<[
     Table,
     TestLayout,
     TestOpenType,
-    TestTypes
+    TestTypes,
+    utils.TestGlyphMetrics
 ]> {}

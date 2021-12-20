@@ -69,6 +69,13 @@ class TestOpenType extends buddy.BuddySuite {
                         done();
                     }, (e) -> {});
                 });
+                describe('Font.names', {
+                    it("contains font name info", {
+                        font.names["fontFamily"]["en"].should.be("Lato");
+                        font.names["fullName"]["en"].should.be("Lato Regular");
+                        font.names["fontSubfamily"]["en"].should.be("Regular");
+                    });
+                });
                 describe('Font.hasChar', {
                     it("can check if font has a glyph for a given character.", {
                         font.hasChar(0).should.be(true); //Null default character
@@ -111,15 +118,14 @@ class TestOpenType extends buddy.BuddySuite {
                 });
                 describe('Font.getGlyphIndicies', {
                     it("can get all font indicies", {
-                        trace(font.names["fontFamily"]["en"]);
-                        trace(font.names["fullName"]["en"]);
-                        trace(font.names["fontSubfamily"]["en"]);
-                        
                         var indicies = font.getGlyphIndicies();
                         trace(indicies.length);
                         var kerningPairs = [for(i in indicies) font.getKerningPairs(i) ];
                         trace(kerningPairs.length);
-                        //trace(indicies.length);
+                        trace(font.getChars().length);
+                        var indexSpace = font.charToGlyphIndex(32);
+                        var space = font.charToGlyph(32);
+                        trace(space.advanceWidth);
                     });
                 });
             });
