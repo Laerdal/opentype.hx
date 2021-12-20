@@ -48,11 +48,9 @@ class Table extends buddy.BuddySuite {
                             }
                         }]
                     } },
-                ]);
+                ]).encode();
                 
-                var enc = sl.encode();
-                
-                //, expectedData);
+                sl.should.containExactly(expectedData);
             });            
         });
     }

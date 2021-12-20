@@ -22,8 +22,7 @@ class TestUtil {
         return haxe.io.Bytes.ofHex(str);
     }
 
-    public static function unhexArray(str : String) : UInt8Array {
-        return UInt8Array.fromBytes(unhex(str));
-        //return Array.prototype.slice.call(new Uint8Array(unhex(str).buffer));
+    public static function unhexArray(str : String) : Array<Int> {
+        return [ for(i in UInt8Array.fromBytes(unhex(str))) i ];
     }
 }
