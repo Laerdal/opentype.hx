@@ -30,7 +30,7 @@ class Font {
     public var numberOfHMetrics : Int;
     public var glyphs : GlyphSet;
     public var _hmtxTableData : Array<HorizontalMetrics>;
-    public var kerningPairs : Map<String,Int>;
+    public var kerningPairs : Map<Int, Map<Int, Int>>;
     public var encoding : IEncoding;
 
     /**
@@ -54,7 +54,7 @@ class Font {
         } else {
             //fallback to kerning tables
             var kp = leftIndex + ',' + rightIndex;
-            return kerningPairs.exists(kp) ? kerningPairs[leftIndex + ',' + rightIndex] : 0;
+            return kerningPairs.exists(leftIndex) && kerningPairs[leftIndex].exists(rightIndex) ? kerningPairs[leftIndex][rightIndex] : 0;
         }
     }
 
@@ -80,7 +80,6 @@ class Font {
     * @return {Boolean}
     */
     public function hasChar(code : Int) {
-        //return this.encoding.charToGlyphIndex(c) != null;
         return encoding.hasChar(code);
     }
 
@@ -125,7 +124,16 @@ class Font {
     }
 
     public function getKerningPairs(index : Int) {
-        return position.getKerningPairs(index);
+        //Get kernings found in the 'gpos' table
+        var kernings = position.getKerningPairs(index).copy();
+        //Also include kerning found in the 'kern' table
+        if(kerningPairs.exists(index)) {
+            for(k => v in kerningPairs[index]) {
+                kernings.push([k, v]);
+            }
+        }
+        
+        return kernings;
     }
 }
 

@@ -3,7 +3,7 @@ package opentype.tables;
 import haxe.io.Bytes;
 
 class Kern {
-    public var pairs : Map<String, Int>;
+    public var pairs : Map<Int, Map<Int, Int>>;
     public function new() {
         pairs = [];
     }
@@ -22,7 +22,7 @@ class Kern {
         return kern; 
     }
 
-    static function parseWindowsKernTable(p : Parser) : Map<String,Int> {
+    static function parseWindowsKernTable(p : Parser) : Map<Int,Map<Int, Int>> {
         final pairs = new Map();
         // Skip nTables.
         p.skipUShort();
@@ -37,12 +37,13 @@ class Kern {
             final leftIndex = p.parseUShort();
             final rightIndex = p.parseUShort();
             final value = p.parseShort();
-            pairs[leftIndex + ',' + rightIndex] = value;
+            if(!pairs.exists(leftIndex)) pairs[leftIndex] = new Map();
+            pairs[leftIndex][rightIndex] = value;
         }
         return pairs;
     }
     
-    static function parseMacKernTable(p : Parser) : Map<String,Int> {
+    static function parseMacKernTable(p : Parser) : Map<Int,Map<Int,Int>> {
         // The Mac kern table stores the version as a fixed (32 bits) but we only loaded the first 16 bits.
         final pairs = new Map();
         // Skip the rest.
@@ -64,7 +65,8 @@ class Kern {
                 final leftIndex = p.parseUShort();
                 final rightIndex = p.parseUShort();
                 final value = p.parseShort();
-                pairs[leftIndex + ',' + rightIndex] = value;
+                if(!pairs.exists(leftIndex)) pairs[leftIndex] = new Map();
+                pairs[leftIndex][rightIndex] = value;
             }
         }
         return pairs;
