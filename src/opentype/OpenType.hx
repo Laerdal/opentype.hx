@@ -27,7 +27,7 @@ class OpenType {
     * @param  {Function} callback - The function to call when the font load completes
     */
     public static function loadFromFile(path : String, loaded : Bytes -> Void, error : Dynamic -> Void) {
-        #if (js || !nodejs) 
+        #if (sys || nodejs) 
         if(FileSystem.exists(path)) {
             try {
                 final bytes = loadFromFileSync(path);
