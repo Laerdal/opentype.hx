@@ -1,7 +1,9 @@
 package opentype;
 
+#if (sys || nodejs)
 import sys.io.File;
 import sys.FileSystem;
+#end
 import haxe.io.Bytes;
 import opentype.tables.GlyphTable;
 import opentype.tables.Cmap;
@@ -25,6 +27,7 @@ class OpenType {
     * @param  {Function} callback - The function to call when the font load completes
     */
     public static function loadFromFile(path : String, loaded : Bytes -> Void, error : Dynamic -> Void) {
+        #if (js || !nodejs) 
         if(FileSystem.exists(path)) {
             try {
                 final bytes = loadFromFileSync(path);
@@ -35,6 +38,9 @@ class OpenType {
         } else {
             error('Loading font failed!. $path was not found!');
         }
+        #else
+        throw("Cannot load a font via the file system when runnning in the browser");
+        #end
     }
 
     /**
@@ -43,8 +49,12 @@ class OpenType {
     * @return {Bytes}        
     */
     public static function loadFromFileSync(path : String) : Bytes {
+        #if (sys || nodejs)
         final bytes = File.getBytes(path);
         return bytes;
+        #else
+        throw("Cannot load a font via the file system when runnning in the browser");
+        #end
     }
 
 
