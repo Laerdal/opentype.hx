@@ -19,15 +19,15 @@ class TestGlyphMetrics extends buddy.BuddySuite {
                 );                        
                 it("can get advanceWidth for a character code", {
                     var gm : GlyphMetrics = new GlyphMetrics(font);
-                    gm.hMetrics.getAdvanceWidth(0x0).should.be(0);//.NotDef
-                    gm.hMetrics.getAdvanceWidth(' '.code).should.be(386);
-                    gm.hMetrics.getAdvanceWidth('B'.code).should.be(1294);
-                    gm.hMetrics.getAdvanceWidth('~'.code).should.be(1160);
+                    gm.hMetrics.getGlyphMetricsForChar(0x0).advanceWidth.should.be(0);//.NotDef
+                    gm.hMetrics.getGlyphMetricsForChar(' '.code).advanceWidth.should.be(386);
+                    gm.hMetrics.getGlyphMetricsForChar('B'.code).advanceWidth.should.be(1294);
+                    gm.hMetrics.getGlyphMetricsForChar('~'.code).advanceWidth.should.be(1160);
                 });
                 it("can get kernings for a character pair", {
                     var gm : GlyphMetrics = new GlyphMetrics(font);
-                    gm.hMetrics.getKerningForPair('A'.code, 'Y'.code).should.be(-164);
-                    gm.hMetrics.getKerningForPair('L'.code, '™'.code).should.be(-290);
+                    gm.hMetrics.getGlyphMetricsForChar('A'.code).kerningPairs['Y'.code].should.be(-164);
+                    gm.hMetrics.getGlyphMetricsForChar('L'.code).kerningPairs['™'.code].should.be(-290);
                 });
             });
             describe('Using Arial font then hMetrics', function() {
@@ -40,13 +40,13 @@ class TestGlyphMetrics extends buddy.BuddySuite {
                 );                        
                 it("can get advanceWidth for a character code", {
                     var gm : GlyphMetrics = new GlyphMetrics(font);
-                    gm.hMetrics.getAdvanceWidth(' '.code).should.be(569);
-                    gm.hMetrics.getAdvanceWidth('P'.code).should.be(1366);
-                    gm.hMetrics.getAdvanceWidth('^'.code).should.be(961);
+                    gm.hMetrics.getGlyphMetricsForChar(' '.code).advanceWidth.should.be(569);
+                    gm.hMetrics.getGlyphMetricsForChar('P'.code).advanceWidth.should.be(1366);
+                    gm.hMetrics.getGlyphMetricsForChar('^'.code).advanceWidth.should.be(961);
                 });
                 it("can get kernings for a character pair", {
                     var gm : GlyphMetrics = new GlyphMetrics(font);
-                    gm.hMetrics.getKerningForPair('T'.code, 'A'.code).should.be(-152);
+                    gm.hMetrics.getGlyphMetricsForChar('T'.code).kerningPairs['A'.code].should.be(-152);
                 });
             });
         });
