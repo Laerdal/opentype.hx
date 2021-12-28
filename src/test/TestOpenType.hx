@@ -119,13 +119,9 @@ class TestOpenType extends buddy.BuddySuite {
                 describe('Font.getGlyphIndicies', {
                     it("can get all font indicies", {
                         var indicies = font.getGlyphIndicies();
-                        trace(indicies.length);
                         var kerningPairs = [for(i in indicies) font.getKerningPairs(i) ];
-                        trace(kerningPairs.length);
-                        trace(font.getChars().length);
                         var indexSpace = font.charToGlyphIndex(32);
                         var space = font.charToGlyph(32);
-                        trace(space.advanceWidth);
                     });
                 });
             });
