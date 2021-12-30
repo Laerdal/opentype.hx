@@ -18,7 +18,8 @@ class Table extends buddy.BuddySuite {
                 );
                     
                 
-                var sl = new ScriptList([
+                
+                var sr : Array<opentype.tables.ScriptRecord> = [
                     { tag: 'hani', script: {
                         defaultLangSys: {
                             reserved: 0,
@@ -48,7 +49,8 @@ class Table extends buddy.BuddySuite {
                             }
                         }]
                     } },
-                ]).encode();
+                ];
+                var sl = new ScriptList(sr).encode();
                 
                 sl.should.containExactly(expectedData);
             });            

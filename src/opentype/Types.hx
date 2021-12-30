@@ -32,9 +32,9 @@ class Types {
     * @class
     */
     static final sizeOf : Map<String, Any -> Int> = [
-        'FIXED' => cast sizeOfFixed,
+        'FIXED' => (_) -> sizeOfFixed(),
         'TABLE' => cast sizeOfTable,
-        'USHORT' => cast sizeOfUShort
+        'USHORT' => (_) -> sizeOfUShort()
     ];
 
     // Return a function that always returns the same value.
@@ -932,22 +932,16 @@ class Types {
     */
     public static function encodeTable(table : Table) : Array<Int> {
         var data : Array<Int> = [];
-        final length = Lambda.count(table.fields);
+        final length = table.fieldsOrdered.length;
         final subtables = [];
         final subtableOffsets = [];
 
-        for (f in table.fields) {
-            final field = f;
+        for (f in 0...length) {
+            final field = table.fieldsOrdered[f];
             Check.assert(encode.exists(field.type), 'No encoding function for field type ' + field.type + ' (' + field.name + ')');
-            /* This is strange
-            var value = field.name;
-            if (field.name == null) {
-                value = field.value;
-            }
-            */
+            var value = table.fields.exists(field.name) ? table.fields[field.name].value : field.value;
             final encodingFunction = encode[field.type];
-            final bytes = encodingFunction(field.value);
-
+            final bytes = encodingFunction(value);
             if (field.type == 'TABLE') {
                 subtableOffsets.push(data.length);
                 data = data.concat([0, 0]);
@@ -976,17 +970,12 @@ class Types {
     public static function sizeOfTable(table : Table) {
         var numBytes = 0;
 
-        for (f in table.fields) {
-            final field = f;
-            Check.assert(sizeOf.exists(field.type), 'No sizeOf function for field type ' + field.type + ' (' + field.name + ')');
-            /* This is strange
-            var value = table[field.name];
-            if (value == null) {
-                value = field.value;
-            }
-*/
+        for (f in 0...table.fieldsOrdered.length) {
+            final field = table.fieldsOrdered[f];
             final sizeOfFunction = sizeOf[field.type];
-            numBytes += sizeOfFunction(field.value);
+            Check.assert(sizeOf.exists(field.type), 'No sizeOf function for field type ' + field.type + ' (' + field.name + ')');
+            var value = table.fields.exists(field.name) ? table.fields[field.name].value : field.value;
+            numBytes += sizeOfFunction(value);
 
             // Subtables take 2 more bytes for offsets.
             if (field.type == 'TABLE') {

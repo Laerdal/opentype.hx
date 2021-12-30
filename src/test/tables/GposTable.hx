@@ -67,8 +67,8 @@ class GposTable extends buddy.BuddySuite {
                 gpos.coverage.ranges[0].value.should.be(0);
                 gpos.value.xPlacement.should.be(80);
                 gpos.value.yAdvance.should.be(210);
-                gpos.value.xPlaDevice.should.be(null);
-                gpos.value.yAdvDevice.should.be(null);
+                gpos.value.xPlaDevice.should.be(0);
+                gpos.value.yAdvDevice.should.be(0);
             });
         
             it('can parse lookup1 SinglePosFormat2', function() {

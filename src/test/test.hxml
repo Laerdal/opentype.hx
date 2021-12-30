@@ -9,6 +9,11 @@
 
 --next 
 
+-lib hxcs
+--cs out/cs 
+--main Main
+
+--next 
 --cs out/cs 
 --main MainCs
 --cmd cd out/cs/bin 

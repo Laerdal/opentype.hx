@@ -226,10 +226,10 @@ class Parser {
         if (valueFormat & 0x0008 != 0) { valueRecord.yAdvance = parseShort(); }
         // Device table (non-variable font) / VariationIndex table (variable font) not supported
         // https://docs.microsoft.com/fr-fr/typography/opentype/spec/chapter2#devVarIdxTbls
-        if (valueFormat & 0x0010 != 0) { /* valueRecord.xPlaDevice = ?*/ parseShort(); }
-        if (valueFormat & 0x0020 != 0) { /* valueRecord.yPlaDevice = ?*/ parseShort(); }
-        if (valueFormat & 0x0040 != 0) { /* valueRecord.xAdvDevice = ?*/ parseShort(); }
-        if (valueFormat & 0x0080 != 0) { /* valueRecord.yAdvDevice = ?*/ parseShort(); }
+        if (valueFormat & 0x0010 != 0) { valueRecord.xPlaDevice = 0; parseShort(); }
+        if (valueFormat & 0x0020 != 0) { valueRecord.yPlaDevice = 0; parseShort(); }
+        if (valueFormat & 0x0040 != 0) { valueRecord.xAdvDevice = 0; parseShort(); }
+        if (valueFormat & 0x0080 != 0) { valueRecord.yAdvDevice = 0; parseShort(); }
         
         return valueRecord;
     }

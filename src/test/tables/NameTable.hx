@@ -45,18 +45,18 @@ function makeNameTable(names : Array<NameTableEntry>) {
     for (i in 0...names.length) {
         var name = names[i];
         final text = name.text.unhex();
-        t.fields['platformID_' + i] = new Field('platformID_' + i, 'USHORT', name.platformId);
-        t.fields['encodingID_' + i] = new Field('encodingID_' + i, 'USHORT', name.encodingId);
-        t.fields['languageID_' + i] = new Field('languageID_' + i, 'USHORT', name.languageId);
-        t.fields['nameID_' + i] = new Field('nameID_' + i, 'USHORT', name.nameId);
-        t.fields['length_' + i] = new Field('length_' + i, 'USHORT', text.length);
-        t.fields['offset_' + i] = new Field('offset_' + i, 'USHORT', stringPool.length);
+        t.fieldsOrdered.push( new Field('platformID_' + i, 'USHORT', name.platformId));
+        t.fieldsOrdered.push( new Field('encodingID_' + i, 'USHORT', name.encodingId));
+        t.fieldsOrdered.push( new Field('languageID_' + i, 'USHORT', name.languageId));
+        t.fieldsOrdered.push( new Field('nameID_' + i, 'USHORT', name.nameId));
+        t.fieldsOrdered.push( new Field('length_' + i, 'USHORT', text.length));
+        t.fieldsOrdered.push( new Field('offset_' + i, 'USHORT', stringPool.length));
         for (j in 0...text.length) {
             stringPool.push(text.readU8(j));
         }
     }
 
-    t.fields['strings'] = new Field('strings', 'LITERAL', stringPool);
+    t.fieldsOrdered.push( new Field('strings', 'LITERAL', stringPool));
 
     final bytes = opentype.Types.encodeTable(t);
     final data = Bytes.alloc(bytes.length);

@@ -6,6 +6,7 @@ import opentype.tables.LangSysRecord;
 class Table {
     public var tableName : String;
     public var fields(default, null) : Map<String, Field> = [];
+    public var fieldsOrdered(default, null) : Array<Field> = [];
     public function new(tableName : String, tableFields : Array<Field>, ?options : Any) {
         // For coverage tables with coverage format 2, we do not want to add the coverage data directly to the table object,
         // as this will result in wrong encoding order of the coverage data on serialization to bytes.
@@ -13,17 +14,13 @@ class Table {
         if (tableFields != null && (tableFields[0].name != 'coverageFormat' || tableFields[0].value == 1)) {
             for (i in  0...tableFields.length) {
                 final field = tableFields[i];
-                fields[field.name] = field.value;
+                fields[field.name] = field;
             }
         }
 
         this.tableName = tableName;
-        for (i in  0...tableFields.length) {
-            final field = tableFields[i];
-            fields[field.name] = field;
-        }
+        fieldsOrdered = tableFields;
 /*
-        this.fields = fields;
         if (options) {
             const optionKeys = Object.keys(options);
             for (let i = 0; i < optionKeys.length; i += 1) {
@@ -46,9 +43,9 @@ class Table {
 
 class ScriptList 
 extends Table {
-    public function new(scriptListTable : Array<Any>) {
+    public function new(scriptListTable : Array<Dynamic>) {
         super('scriptListTable',
-            TableUtil.recordList('scriptRecord', scriptListTable, cast function(scriptRecord : ScriptRecord, i : Int)  : Array<Field>{
+            TableUtil.recordList('scriptRecord', cast scriptListTable, cast function(scriptRecord : ScriptRecord, i : Int)  : Array<Field>{
                 final script = scriptRecord.script;
                 var defaultLangSys = script.defaultLangSys;
                 Check.assert(defaultLangSys != null, 'Unable to write GSUB: script ' + scriptRecord.tag + ' has no default language system.');
