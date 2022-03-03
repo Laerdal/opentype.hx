@@ -4,9 +4,9 @@
     "url" : "https://github.com/Laerdal/opentype.hx",
     "license": "MIT",
     "tags": ["font", "truetype", "opentype", "ttf", "woff"],
-    "version": "0.0.3",
+    "version": "0.0.4",
     "classPath": "src/",
-    "releasenote": "Release alpha 0.0.3",
+    "releasenote": "Release alpha 0.0.4",
     "contributors": ["mikkelmr"],
     "dependencies": {
         "buddy": "" }

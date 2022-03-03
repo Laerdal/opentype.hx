@@ -1,3 +1,6 @@
+2022-03-03: 0.0.4
+ * Support for excluding sys dependent code on sys target (needed on Unity).
+
 2022-01-01: 0.0.3
  * Fixed errors on the C# target.
 
