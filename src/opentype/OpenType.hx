@@ -27,7 +27,7 @@ class OpenType {
     * @param  {Function} callback - The function to call when the font load completes
     */
     public static function loadFromFile(path : String, loaded : Bytes -> Void, error : Dynamic -> Void) {
-        #if (sys || nodejs) 
+        #if ((sys || nodejs) && !no_sys)
         if(FileSystem.exists(path)) {
             try {
                 final bytes = loadFromFileSync(path);
@@ -39,7 +39,7 @@ class OpenType {
             error('Loading font failed!. $path was not found!');
         }
         #else
-        throw("Cannot load a font via the file system when runnning in the browser");
+        throw("Cannot load a font via the file system when runnning on non sys targets");
         #end
     }
 
@@ -49,11 +49,11 @@ class OpenType {
     * @return {Bytes}        
     */
     public static function loadFromFileSync(path : String) : Bytes {
-        #if (sys || nodejs)
+        #if ((sys || nodejs) && !no_sys)
         final bytes = File.getBytes(path);
         return bytes;
         #else
-        throw("Cannot load a font via the file system when runnning in the browser");
+        throw("Cannot load a font via the file system when runnning on non sys targets");
         #end
     }
 
